@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  palettes         Palette[]
+  sharedPalettes   PaletteShare[] @relation("SharedBy")
+  receivedPalettes PaletteShare[] @relation("SharedWith")
+  collections      Collection[]
+  
+  @@map("users")
+}
+
+model Palette {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  colors      String   // JSON array of hex colors
+  imageUrl    String?
+  isFavorite  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  shares      PaletteShare[]
+  collectionPalettes CollectionPalette[]
+  
+  @@map("palettes")
+}
+
+model PaletteShare {
+  id          String   @id @default(uuid())
+  message     String?
+  createdAt   DateTime @default(now())
+  
+  paletteId   String
+  palette     Palette  @relation(fields: [paletteId], references: [id], onDelete: Cascade)
+  
+  sharedById  String
+  sharedBy    User     @relation("SharedBy", fields: [sharedById], references: [id], onDelete: Cascade)
+  
+  sharedWithId String
+  sharedWith   User    @relation("SharedWith", fields: [sharedWithId], references: [id], onDelete: Cascade)
+  
+  @@unique([paletteId, sharedWithId])
+  @@map("palette_shares")
+}
+
+model Collection {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  palettes    CollectionPalette[]
+  
+  @@map("collections")
+}
+
+model CollectionPalette {
+  id           String @id @default(uuid())
+  
+  collectionId String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  
+  paletteId    String
+  palette      Palette @relation(fields: [paletteId], references: [id], onDelete: Cascade)
+  
+  @@unique([collectionId, paletteId])
+  @@map("collection_palettes")
+}
