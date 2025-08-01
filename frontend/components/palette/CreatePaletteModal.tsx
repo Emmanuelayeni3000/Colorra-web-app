@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { X, Plus, Upload, Wand2, Palette as PaletteIcon } from 'lucide-react'
 import { ChromePicker } from 'react-color'
 import { usePaletteActions } from '@/hooks/usePaletteActions'
+import { usePaletteStore } from '@/store/paletteStore'
 import { extractColorsFromImage, validateImageFile, generateComplementaryColors } from '@/lib/colorExtraction'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
@@ -17,13 +18,13 @@ interface CreatePaletteModalProps {
 
 export default function CreatePaletteModal({ isOpen, onClose, onCreated }: CreatePaletteModalProps) {
   const { createPalette } = usePaletteActions()
+  const { isCreating } = usePaletteStore()
   
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [colors, setColors] = useState<string[]>(['#7F56D9'])
   const [activeColorIndex, setActiveColorIndex] = useState(0)
   const [showColorPicker, setShowColorPicker] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
   const [isExtracting, setIsExtracting] = useState(false)
 
   const handleColorChange = (color: any) => {
@@ -83,7 +84,6 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
     e.preventDefault()
     if (!name.trim() || colors.length === 0) return
 
-    setIsLoading(true)
     try {
       await createPalette({
         name: name.trim(),
@@ -102,8 +102,6 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
       onClose()
     } catch (error) {
       // Error handling is done in the hook
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -117,8 +115,10 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
             <CardTitle className="text-2xl font-bold text-neutral-900">
               Create New Palette
             </CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-6 w-6" />
+            <Button variant="ghost" size="icon" onClick={onClose}
+            className='hover:bg-[#14b8a6] hover:text-white'
+            >
+              <X className="h-6 w-6 text" />
             </Button>
           </CardHeader>
           
@@ -274,22 +274,24 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
 
               {/* Form Actions */}
               <div className="flex items-center justify-end space-x-3 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={onClose}>
+                <Button type="button" variant="outline" onClick={onClose}
+                className='hover:bg-[#14b8a6] hover:text-white'
+                >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
-                  disabled={!name.trim() || colors.length === 0 || isLoading}
-                  className="bg-primary hover:bg-primary-600"
+                  disabled={!name.trim() || colors.length === 0 || isCreating}
+                  className="bg-primary text-white hover:bg-primary-600"
                 >
-                  {isLoading ? (
+                  {isCreating ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                       Creating...
                     </>
                   ) : (
                     <>
-                      <PaletteIcon className="h-4 w-4 mr-2" />
+                      <PaletteIcon className="h-4 w-4 mr-2 text-white" />
                       Create Palette
                     </>
                   )}

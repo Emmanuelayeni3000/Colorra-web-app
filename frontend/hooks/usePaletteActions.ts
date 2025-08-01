@@ -11,6 +11,7 @@ export const usePaletteActions = () => {
     updatePalette, 
     deletePalette: removePalette, 
     setLoading, 
+    setCreating,
     setError 
   } = usePaletteStore()
   const { isAuthenticated } = useAuthStore()
@@ -22,6 +23,7 @@ export const usePaletteActions = () => {
     } else {
       setPalettes([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated])
 
   const loadPalettes = async (favorites?: boolean) => {
@@ -47,18 +49,24 @@ export const usePaletteActions = () => {
     imageUrl?: string
   }) => {
     try {
+      setCreating(true)
+      setError(null)
       const response = await apiClient.createPalette(paletteData)
       // Backend returns { palette: {...} }
       const newPalette = response.palette
+      // Add to local store immediately for quick UI update
+      addPalette(newPalette)
+      // Ensure loading state is false so dashboard shows palettes
+      setLoading(false)
       toast.success('Palette created successfully!')
-      // Refetch palettes from backend to ensure latest data
-      await loadPalettes()
       return newPalette
     } catch (error: any) {
       const message = error.response?.data?.message || 'Failed to create palette'
       setError(message)
       toast.error(message)
       throw error
+    } finally {
+      setCreating(false)
     }
   }
 

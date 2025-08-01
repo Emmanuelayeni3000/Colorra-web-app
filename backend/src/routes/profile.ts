@@ -1,9 +1,11 @@
 import express from 'express'
 import { authenticateToken } from '../middleware/auth'
+import { upload } from '../middleware/upload'
 import { 
   getProfile, 
   updateProfile, 
   changePassword,
+  uploadAvatar,
   updateProfileValidation,
   changePasswordValidation
 } from '../controllers/profileController'
@@ -21,5 +23,8 @@ router.put('/', updateProfileValidation, updateProfile)
 
 // PUT /api/profile/password - Change password
 router.put('/password', changePasswordValidation, changePassword)
+
+// POST /api/profile/avatar - Upload avatar
+router.post('/avatar', upload.single('avatar'), uploadAvatar)
 
 export default router

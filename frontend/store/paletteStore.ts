@@ -9,12 +9,14 @@ export interface Palette {
   imageUrl?: string
   isFavorite: boolean
   createdAt: string
+  updatedAt: string
 }
 
 interface PaletteState {
   palettes: Palette[]
   currentPalette: Palette | null
   isLoading: boolean
+  isCreating: boolean
   error: string | null
   
   // Actions
@@ -25,6 +27,7 @@ interface PaletteState {
   setCurrentPalette: (palette: Palette | null) => void
   toggleFavorite: (id: string) => void
   setLoading: (loading: boolean) => void
+  setCreating: (creating: boolean) => void
   setError: (error: string | null) => void
   getFavorites: () => Palette[]
   clearPalettes: () => void
@@ -34,6 +37,7 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
   palettes: [],
   currentPalette: null,
   isLoading: false,
+  isCreating: false,
   error: null,
   
   setPalettes: (palettes: Palette[]) => {
@@ -89,6 +93,10 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
   
   setLoading: (loading: boolean) => {
     set({ isLoading: loading })
+  },
+  
+  setCreating: (creating: boolean) => {
+    set({ isCreating: creating })
   },
   
   setError: (error: string | null) => {

@@ -11,12 +11,15 @@ const promises_1 = __importDefault(require("fs/promises"));
 // Configure multer for file uploads
 const storage = multer_1.default.diskStorage({
     destination: async (req, file, cb) => {
-        const uploadDir = path_1.default.join(__dirname, '../../uploads');
+        const uploadDir = path_1.default.resolve(__dirname, '../../uploads');
+        console.log('Upload destination directory:', uploadDir);
         // Create uploads directory if it doesn't exist
         try {
             await promises_1.default.access(uploadDir);
+            console.log('Upload directory exists');
         }
         catch {
+            console.log('Creating upload directory:', uploadDir);
             await promises_1.default.mkdir(uploadDir, { recursive: true });
         }
         cb(null, uploadDir);

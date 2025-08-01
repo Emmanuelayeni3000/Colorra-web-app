@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePasswordValidation = exports.updateProfileValidation = exports.changePassword = exports.updateProfile = exports.getProfile = void 0;
+exports.uploadAvatar = exports.changePasswordValidation = exports.updateProfileValidation = exports.changePassword = exports.updateProfile = exports.getProfile = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const client_1 = require("@prisma/client");
 const express_validator_1 = require("express-validator");
@@ -30,7 +30,10 @@ const getProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json(user);
+        // Get avatarUrl separately using raw query
+        const avatarResult = await prisma.$queryRaw `SELECT avatarUrl FROM users WHERE id = ${userId}`;
+        const avatarUrl = avatarResult[0]?.avatarUrl || null;
+        res.json({ ...user, avatarUrl });
     }
     catch (error) {
         console.error('Get profile error:', error);
@@ -77,7 +80,10 @@ const updateProfile = async (req, res) => {
                 updatedAt: true
             }
         });
-        res.json(updatedUser);
+        // Get avatarUrl separately using raw query
+        const avatarResult = await prisma.$queryRaw `SELECT avatarUrl FROM users WHERE id = ${userId}`;
+        const avatarUrl = avatarResult[0]?.avatarUrl || null;
+        res.json({ ...updatedUser, avatarUrl });
     }
     catch (error) {
         console.error('Update profile error:', error);
@@ -145,4 +151,51 @@ exports.changePasswordValidation = [
         .isLength({ min: 6 })
         .withMessage('New password must be at least 6 characters long')
 ];
+// Upload avatar
+const uploadAvatar = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        console.log('Upload avatar request for user:', userId);
+        if (!req.file) {
+            console.error('No file uploaded in request');
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        console.log('Uploaded file:', {
+            filename: req.file.filename,
+            originalname: req.file.originalname,
+            mimetype: req.file.mimetype,
+            size: req.file.size
+        });
+        // File path relative to the uploads directory
+        const avatarUrl = `/uploads/${req.file.filename}`;
+        // Update user with new avatar URL using raw query
+        await prisma.$executeRaw `UPDATE users SET avatarUrl = ${avatarUrl} WHERE id = ${userId}`;
+        console.log('Updated user avatar URL in database:', avatarUrl);
+        // Get updated user data
+        const updatedUser = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                createdAt: true,
+                updatedAt: true
+            }
+        });
+        console.log('Returning success response');
+        res.json({
+            message: 'Avatar uploaded successfully',
+            user: { ...updatedUser, avatarUrl },
+            avatarUrl
+        });
+    }
+    catch (error) {
+        console.error('Upload avatar error:', error);
+        res.status(500).json({
+            message: 'Internal server error',
+            error: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+};
+exports.uploadAvatar = uploadAvatar;
 //# sourceMappingURL=profileController.js.map

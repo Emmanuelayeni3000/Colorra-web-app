@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Avatar Upload Test</title>
+</head>
+<body>
+    <h1>Avatar Upload Test</h1>
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="testUpload()">Test Upload</button>
+    <button onclick="testAuth()">Test Auth Token</button>
+    <button onclick="testStaticFiles()">Test Static Files</button>
+    <div id="results"></div>
+
+    <script>
+        async function testStaticFiles() {
+            const results = document.getElementById('results');
+            results.innerHTML = 'Testing static file serving...<br>';
+            
+            // Test known uploaded file
+            const testFiles = [
+                '/uploads/6bdf0ad7-0e37-4537-aed4-0dfb7677ae36.png',
+                '/uploads/a462dedf-c81a-43db-9b2e-afbed5a9a7be.png',
+                '/uploads/dec08f3a-1992-4f0f-b4a4-a15d5b604b0a.png'
+            ];
+            
+            for (const file of testFiles) {
+                try {
+                    const response = await fetch(`http://localhost:5000${file}`);
+                    results.innerHTML += `${file}: ${response.status}<br>`;
+                } catch (error) {
+                    results.innerHTML += `${file}: Error - ${error.message}<br>`;
+                }
+            }
+        }
+
+        async function testAuth() {
+            const results = document.getElementById('results');
+            const token = localStorage.getItem('token') || 'test-token';
+            
+            results.innerHTML = 'Testing authentication...<br>';
+            results.innerHTML += `Token: ${token.substring(0, 30)}...<br>`;
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/test-auth', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                results.innerHTML += `Auth test result: ${JSON.stringify(data, null, 2)}<br><br>`;
+                
+            } catch (error) {
+                results.innerHTML += `Auth test error: ${error.message}<br>`;
+            }
+        }
+
+        async function testUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const results = document.getElementById('results');
+            
+            if (!fileInput.files[0]) {
+                results.innerHTML = 'Please select a file first';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('avatar', file);
+
+            // Test token (you'll need to replace this with a real token)
+            const token = localStorage.getItem('token') || 'test-token';
+            
+            results.innerHTML = 'Testing upload...<br>';
+            
+            try {
+                // Test health endpoint first
+                const healthResponse = await fetch('http://localhost:5000/api/health');
+                results.innerHTML += `Health check: ${healthResponse.status}<br>`;
+                
+                // Test upload
+                const uploadResponse = await fetch('http://localhost:5000/api/profile/avatar', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+                
+                results.innerHTML += `Upload response: ${uploadResponse.status}<br>`;
+                const responseText = await uploadResponse.text();
+                results.innerHTML += `Response body: ${responseText}<br>`;
+                
+            } catch (error) {
+                results.innerHTML += `Error: ${error.message}<br>`;
+            }
+        }
+    </script>
+</body>
+</html>

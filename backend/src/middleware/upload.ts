@@ -6,12 +6,15 @@ import fs from 'fs/promises'
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../uploads')
+    const uploadDir = path.resolve(__dirname, '../../uploads')
+    console.log('Upload destination directory:', uploadDir)
     
     // Create uploads directory if it doesn't exist
     try {
       await fs.access(uploadDir)
+      console.log('Upload directory exists')
     } catch {
+      console.log('Creating upload directory:', uploadDir)
       await fs.mkdir(uploadDir, { recursive: true })
     }
     

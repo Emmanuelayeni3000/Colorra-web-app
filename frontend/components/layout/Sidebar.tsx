@@ -89,7 +89,7 @@ export default function Sidebar({ isOpen, onClose, favoriteCount }: SidebarProps
                   className={cn(
                     'group flex items-center px-2 py-2 text-sm font-medium rounded-sm transition-colors',
                     item.current
-                      ? 'bg-primary-50 text-primary-700 border-r-3 border-[#14b8a6]'
+                      ? 'bg-primary-50 text-primary-700 border border-[#14b8a6]'
                       : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                   )}
                 >
@@ -162,7 +162,7 @@ export default function Sidebar({ isOpen, onClose, favoriteCount }: SidebarProps
                   className={cn(
                     'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors',
                     item.current
-                      ? 'bg-primary-50 text-primary-700 border-r-2 border-[#14b8a6]'
+                      ? 'bg-primary-50 text-primary-700 border border-[#14b8a6]'
                       : 'text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900'
                   )}
                 >

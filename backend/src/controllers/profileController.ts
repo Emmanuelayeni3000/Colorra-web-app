@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs'
 import { PrismaClient } from '@prisma/client'
 import { body, validationResult } from 'express-validator'
 import { AuthRequest } from '../middleware/auth'
+import path from 'path'
+import fs from 'fs'
 
 const prisma = new PrismaClient()
 
@@ -25,13 +27,17 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
           }
         }
       }
-    })
+    }) as any
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
     }
 
-    res.json(user)
+    // Get avatarUrl separately using raw query
+    const avatarResult = await prisma.$queryRaw`SELECT avatarUrl FROM users WHERE id = ${userId}` as any
+    const avatarUrl = avatarResult[0]?.avatarUrl || null
+
+    res.json({ ...user, avatarUrl })
   } catch (error) {
     console.error('Get profile error:', error)
     res.status(500).json({ message: 'Internal server error' })
@@ -80,9 +86,13 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
         createdAt: true,
         updatedAt: true
       }
-    })
+    }) as any
 
-    res.json(updatedUser)
+    // Get avatarUrl separately using raw query
+    const avatarResult = await prisma.$queryRaw`SELECT avatarUrl FROM users WHERE id = ${userId}` as any
+    const avatarUrl = avatarResult[0]?.avatarUrl || null
+
+    res.json({ ...updatedUser, avatarUrl })
   } catch (error) {
     console.error('Update profile error:', error)
     res.status(500).json({ message: 'Internal server error' })
@@ -156,3 +166,55 @@ export const changePasswordValidation = [
     .isLength({ min: 6 })
     .withMessage('New password must be at least 6 characters long')
 ]
+
+// Upload avatar
+export const uploadAvatar = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user!.id
+    console.log('Upload avatar request for user:', userId)
+    
+    if (!req.file) {
+      console.error('No file uploaded in request')
+      return res.status(400).json({ message: 'No file uploaded' })
+    }
+
+    console.log('Uploaded file:', {
+      filename: req.file.filename,
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    })
+
+    // File path relative to the uploads directory
+    const avatarUrl = `/uploads/${req.file.filename}`
+
+    // Update user with new avatar URL using raw query
+    await prisma.$executeRaw`UPDATE users SET avatarUrl = ${avatarUrl} WHERE id = ${userId}`
+    console.log('Updated user avatar URL in database:', avatarUrl)
+
+    // Get updated user data
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    }) as any
+
+    console.log('Returning success response')
+    res.json({
+      message: 'Avatar uploaded successfully',
+      user: { ...updatedUser, avatarUrl },
+      avatarUrl
+    })
+  } catch (error) {
+    console.error('Upload avatar error:', error)
+    res.status(500).json({ 
+      message: 'Internal server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    })
+  }
+}

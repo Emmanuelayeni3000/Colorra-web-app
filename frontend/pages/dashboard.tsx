@@ -26,11 +26,15 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/signin')
-    } else {
-      loadPalettes()
     }
+    // Don't call loadPalettes here since usePaletteActions already handles it
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Manual refresh function for debugging
+  const handleRefresh = () => {
+    loadPalettes()
+  }
 
   // Filter palettes based on search and filter
   const filteredPalettes = palettes.filter(palette => {
@@ -100,6 +104,13 @@ export default function DashboardPage() {
               <Plus className="h-4 w-4 mr-2" />
               New Palette
             </Button>
+            <Button 
+              onClick={handleRefresh}
+              variant="outline"
+              className="hover:bg-[#14b8a6] hover:text-white"
+            >
+              Refresh
+            </Button>
           </div>
         </header>
 
@@ -139,7 +150,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Palettes Grid */}
-          {isLoading ? (
+          {isLoading && palettes.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
             </div>
@@ -211,7 +222,10 @@ export default function DashboardPage() {
       <CreatePaletteModal 
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        onCreated={loadPalettes}
+        onCreated={() => {
+          // Modal will close automatically, no need to reload palettes
+          // as createPalette already adds to store
+        }}
       />
     </div>
   )

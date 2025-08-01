@@ -126,15 +126,15 @@ export default function PaletteCard({ palette }: PaletteCardProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#14b8a6] hover:text-white"
               onClick={handleToggleFavorite}
             >
               <Heart 
                 className={cn(
-                  "h-4 w-4",
+                  "h-4 w-4 hover:text-white",
                   palette.isFavorite 
                     ? "fill-red-500 text-red-500" 
-                    : "text-neutral-400 hover:text-red-500"
+                    : "text-neutral-400 hover:text-white"
                 )}
               />
             </Button>
@@ -143,7 +143,7 @@ export default function PaletteCard({ palette }: PaletteCardProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-[#14b8a6] hover:text-white "
                 onClick={(e) => {
                   e.stopPropagation()
                   setShowActions(!showActions)

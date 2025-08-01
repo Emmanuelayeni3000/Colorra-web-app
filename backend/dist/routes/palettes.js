@@ -15,6 +15,7 @@ router.get('/', auth_1.authenticateToken, async (req, res, next) => {
     try {
         const { favorites } = req.query;
         const userId = req.user.id;
+        // console.log(`[GET /api/palettes] userId: ${userId}, favorites: ${favorites}`)
         const whereClause = { userId };
         if (favorites === 'true') {
             whereClause.isFavorite = true;
@@ -92,8 +93,10 @@ router.post('/', auth_1.authenticateToken, [
             }
         });
         res.status(201).json({
-            ...palette,
-            colors: JSON.parse(palette.colors)
+            palette: {
+                ...palette,
+                colors: JSON.parse(palette.colors)
+            }
         });
     }
     catch (error) {

@@ -11,13 +11,13 @@ const client_1 = require("@prisma/client");
 const errorHandler_1 = require("../middleware/errorHandler");
 const router = express_1.default.Router();
 const prisma = new client_1.PrismaClient();
-// Register
+// Register (uses try/catch for async error handling)
 router.post('/signup', [
     (0, express_validator_1.body)('email').isEmail().normalizeEmail(),
     (0, express_validator_1.body)('password').isLength({ min: 6 }),
     (0, express_validator_1.body)('name').trim().isLength({ min: 1 }).optional()
 ], async (req, res, next) => {
-    try {
+    try { // All async logic is wrapped in try/catch for robust error handling
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({
@@ -50,21 +50,22 @@ router.post('/signup', [
             user: {
                 id: user.id,
                 email: user.email,
-                name: user.name
+                name: user.name,
+                avatarUrl: null
             },
             token
         });
     }
     catch (error) {
-        next(error);
+        next(error); // Pass errors to centralized error handler middleware
     }
 });
-// Login
+// Login (uses try/catch for async error handling)
 router.post('/signin', [
     (0, express_validator_1.body)('email').isEmail().normalizeEmail(),
     (0, express_validator_1.body)('password').exists()
 ], async (req, res, next) => {
-    try {
+    try { // All async logic is wrapped in try/catch for robust error handling
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({
@@ -87,18 +88,22 @@ router.post('/signin', [
         }
         // Generate JWT
         const token = jsonwebtoken_1.default.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        // Get avatarUrl separately using raw query
+        const avatarResult = await prisma.$queryRaw `SELECT avatarUrl FROM users WHERE id = ${user.id}`;
+        const avatarUrl = avatarResult[0]?.avatarUrl || null;
         res.json({
             message: 'Login successful',
             user: {
                 id: user.id,
                 email: user.email,
-                name: user.name
+                name: user.name,
+                avatarUrl
             },
             token
         });
     }
     catch (error) {
-        next(error);
+        next(error); // Pass errors to centralized error handler middleware
     }
 });
 exports.default = router;

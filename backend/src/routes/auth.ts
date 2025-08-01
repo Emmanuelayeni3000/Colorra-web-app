@@ -60,7 +60,8 @@ router.post('/signup',
         user: {
           id: user.id,
           email: user.email,
-          name: user.name
+          name: user.name,
+          avatarUrl: null
         },
         token
       })
@@ -110,12 +111,17 @@ router.post('/signin',
         { expiresIn: '7d' }
       )
 
+      // Get avatarUrl separately using raw query
+      const avatarResult = await prisma.$queryRaw`SELECT avatarUrl FROM users WHERE id = ${user.id}` as any
+      const avatarUrl = avatarResult[0]?.avatarUrl || null
+
       res.json({
         message: 'Login successful',
         user: {
           id: user.id,
           email: user.email,
-          name: user.name
+          name: user.name,
+          avatarUrl
         },
         token
       })
