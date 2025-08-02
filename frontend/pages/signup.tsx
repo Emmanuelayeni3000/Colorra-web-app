@@ -64,7 +64,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-primary-50 to-accent-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-[#8b5cf6]/5 to-[#14b8a6]/5 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -74,7 +74,7 @@ export default function SignUpPage() {
           <h2 className="text-2xl font-bold text-neutral-900">Create your account</h2>
           <p className="mt-2 text-neutral-600">
             Already have an account?{' '}
-            <Link href="/signin" className="text-primary hover:text-primary-600 font-medium">
+            <Link href="/signin" className="text-[#8b5cf6] hover:text-[#7c3aed] font-medium">
               Sign in
             </Link>
           </p>
@@ -188,7 +188,7 @@ export default function SignUpPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-primary text-white hover:bg-[#14b8a6] hover:text-white mt-10"
+                className="w-full bg-[#14b8a6] text-white hover:bg-[#0f766e] mt-10"
                 disabled={isLoading}
               >
                 {isLoading ? 'Creating Account...' : 'Create Account'}

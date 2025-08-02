@@ -59,6 +59,24 @@ class ApiClient {
     }
   }
 
+  async forgotPassword(data: { email: string }) {
+    try {
+      const response = await this.client.post('/password-reset/request', data)
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async resetPassword(data: { token: string; password: string }) {
+    try {
+      const response = await this.client.post('/password-reset/reset', data)
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  }
+
   // Palette endpoints
   async getPalettes(favorites?: boolean) {
     try {

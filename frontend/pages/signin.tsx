@@ -45,7 +45,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-primary-50 to-accent-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-[#8b5cf6]/5 to-[#14b8a6]/5 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
@@ -55,7 +55,7 @@ export default function SignInPage() {
           <h2 className="text-2xl font-bold text-neutral-900">Welcome back</h2>
           <p className="mt-2 text-neutral-600">
             Don't have an account?{' '}
-            <Link href="/signup" className="text-primary hover:text-primary-600 font-medium">
+            <Link href="/signup" className="text-[#8b5cf6] hover:text-[#7c3aed] font-medium">
               Sign up
             </Link>
           </p>
@@ -128,14 +128,14 @@ export default function SignInPage() {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                    className="h-4 w-4 text-[#8b5cf6] focus:ring-[#8b5cf6] border-gray-300 rounded"
                   />
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-neutral-700">
                     Remember me
                   </label>
                 </div>
                 <div className="text-sm">
-                  <Link href="/forgot-password" className="text-primary hover:text-primary-600">
+                  <Link href="/forgot-password" className="text-[#14b8a6] hover:text-[#0f766e]">
                     Forgot password?
                   </Link>
                 </div>
@@ -143,7 +143,7 @@ export default function SignInPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-primary text-white hover:bg-[#14b8a6] hover:text-white"
+                className="w-full bg-[#14b8a6] text-white hover:bg-[#0f766e]"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing In...' : 'Sign In'}

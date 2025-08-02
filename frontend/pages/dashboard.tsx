@@ -57,7 +57,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-[#8b5cf6]/3 to-[#14b8a6]/3">
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
@@ -99,7 +99,7 @@ export default function DashboardPage() {
             
             <Button 
               onClick={() => setCreateModalOpen(true)}
-              className="bg-primary text-white hover:bg-[#14b8a6] hover:text-white"
+              className="bg-[#14b8a6] text-white hover:bg-[#0f766e]"
             >
               <Plus className="h-4 w-4 mr-2" />
               New Palette
@@ -107,7 +107,7 @@ export default function DashboardPage() {
             <Button 
               onClick={handleRefresh}
               variant="outline"
-              className="hover:bg-[#14b8a6] hover:text-white"
+              className="hover:bg-[#8b5cf6] hover:text-white"
             >
               Refresh
             </Button>
@@ -152,7 +152,7 @@ export default function DashboardPage() {
           {/* Palettes Grid */}
           {isLoading && palettes.length === 0 ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8b5cf6]"></div>
             </div>
           ) : filteredPalettes.length === 0 ? (
             <Card className="text-center py-12">
@@ -176,7 +176,7 @@ export default function DashboardPage() {
                 {!searchTerm && filter !== 'favorites' && (
                   <Button 
                     onClick={() => setCreateModalOpen(true)}
-                    className="bg-primary text-white hover:bg-[#14b8a6] hover:text-white"
+                    className="bg-[#14b8a6] text-white hover:bg-[#0f766e]"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Create Your First Palette
