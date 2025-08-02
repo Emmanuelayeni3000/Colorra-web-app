@@ -1,2 +1,15 @@
 node_modules/
 **/node_modules/
+
+# Documentation files to hide
+IMPLEMENTATION_SUMMARY.md
+start.md
+PRD.md
+DEVELOPMENT.md
+PASSWORD_RESET_README.md
+ERROR_FIXES_SUMMARY.md
+SHAREPALETTEMODAL_FIX.md
+UPLOAD_FIXES_SUMMARY.md
+
+# Keep only README.md visible
+# READme.md - this will remain visible
