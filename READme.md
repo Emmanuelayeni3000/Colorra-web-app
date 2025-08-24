@@ -28,7 +28,7 @@ A web application for creating, sharing, and discovering beautiful color palette
 *   [Node.js](https://nodejs.org/) - JavaScript runtime built on Chrome's V8 JavaScript engine.
 *   [Express](https://expressjs.com/) - Fast, unopinionated, minimalist web framework for Node.js.
 *   [Prisma](https://www.prisma.io/) - Next-generation ORM for Node.js and TypeScript.
-*   [PostgreSQL](https://www.postgresql.org/) - A powerful, open source object-relational database system.
+*   [SQLite](https://www.sqlite.org/index.html) - A C-language library that implements a small, fast, self-contained, high-reliability, full-featured, SQL database engine.
 
 ## 🏁 Getting Started
 
