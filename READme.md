@@ -97,4 +97,6 @@ Contributions are what make the open source community such an amazing place to l
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-## Developed By EAWEBCRAFT
+## Developed By 
+
+<a href="mailto:ayeniemmanuel914@gmail.com">Emmanuel Ayeni</a>
