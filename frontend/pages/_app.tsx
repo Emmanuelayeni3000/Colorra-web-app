@@ -1,6 +1,6 @@
 import type { AppProps } from 'next/app'
 import { Inter, DM_Sans } from 'next/font/google'
-import ToastProvider from '@/components/providers/ToastProvider'
+import { Toaster } from 'sonner'
 import '../styles/globals.css'
 
 const inter = Inter({ 
@@ -17,7 +17,14 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <div className={`${inter.variable} ${dmSans.variable} font-sans`}>
       <Component {...pageProps} />
-      <ToastProvider />
+      <Toaster
+        position="top-center"
+        toastOptions={{
+          classNames: {
+            actionButton: 'bg-[#14b8a6] text-white',
+          },
+        }}
+      />
     </div>
   )
 }

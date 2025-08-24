@@ -3,9 +3,11 @@ import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { User, Mail, Calendar, Palette, Heart, Edit2, Save, X, Menu, Camera } from 'lucide-react'
+import { User, Mail, Calendar, Palette, Heart, Edit2, Save, X, Menu, Camera, Users, UserPlus } from 'lucide-react'
+import Image from 'next/image'
 import { useAuthStore } from '@/store/authStore'
 import { usePaletteStore } from '@/store/paletteStore'
+import { apiClient } from '@/lib/api'
 import Sidebar from '@/components/layout/Sidebar'
 import toast from 'react-hot-toast'
 
@@ -40,14 +42,19 @@ export default function ProfilePage() {
 
   const handleSaveProfile = async () => {
     try {
-      // TODO: API call to update user profile
-      updateUser({
+      // Call API to update user profile
+      const updatedUser = await apiClient.updateProfile({
         name: editForm.name,
         email: editForm.email
       })
+      
+      // Update local store with response from server
+      updateUser(updatedUser)
       setIsEditing(false)
+      toast.success('Profile updated successfully!')
     } catch (error) {
       console.error('Failed to update profile:', error)
+      toast.error('Failed to update profile. Please try again.')
     }
   }
 
@@ -76,81 +83,8 @@ export default function ProfilePage() {
 
     setIsUploadingAvatar(true)
     try {
-      const formData = new FormData()
-      formData.append('avatar', file)
-
-      const { token } = useAuthStore.getState()
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
-      
-      // Debug token
-      console.log('Token from auth store:', token ? `${token.substring(0, 30)}...` : 'null')
-      
-      if (!token) {
-        toast.error('Please log in again to upload avatar')
-        return
-      }
-      
-      // Validate JWT token format (should start with 'eyJ')
-      if (!token.startsWith('eyJ')) {
-        console.warn('Invalid JWT token format detected')
-        toast.error('Invalid session. Please log in again.')
-        const { logout } = useAuthStore.getState()
-        logout()
-        router.push('/auth/signin')
-        return
-      }
-      
-      // First test connectivity
-      console.log('Testing backend connectivity...')
-      try {
-        const healthResponse = await fetch(`${apiUrl}/health`)
-        console.log('Health check:', healthResponse.status, await healthResponse.text())
-      } catch (healthError) {
-        console.error('Backend not reachable:', healthError)
-        throw new Error('Backend server is not running')
-      }
-      
-      console.log('Uploading to:', `${apiUrl}/profile/avatar`)
-      console.log('File details:', {
-        name: file.name,
-        size: file.size,
-        type: file.type
-      })
-      console.log('Authorization token present:', !!token)
-      
-      const response = await fetch(`${apiUrl}/profile/avatar`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      })
-
-      console.log('Response status:', response.status, response.statusText)
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
-
-      if (!response.ok) {
-        const errorData = await response.text()
-        console.error('Avatar upload failed:', {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData
-        })
-        
-        // Handle authentication errors
-        if (response.status === 401) {
-          toast.error('Session expired. Please log in again.')
-          const { logout } = useAuthStore.getState()
-          logout()
-          router.push('/auth/signin')
-          return
-        }
-        
-        throw new Error(`Failed to upload avatar: ${response.status} ${response.statusText}`)
-      }
-
-      const data = await response.json()
-      console.log('Upload response data:', data)
+      // Use the apiClient to upload avatar
+      const data = await apiClient.uploadAvatar(file)
       
       // Update user in store with new avatar URL
       updateUser({
@@ -260,11 +194,13 @@ export default function ProfilePage() {
                       <div className="h-20 w-20 rounded-full flex items-center justify-center overflow-hidden border-2 border-gray-200 relative" style={{minWidth: '80px', minHeight: '80px'}}>
                         {user?.avatarUrl ? (
                           <>
-                            <img 
+                            <Image 
                               src={user.avatarUrl.startsWith('http') 
                                 ? user.avatarUrl 
                                 : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${user.avatarUrl}?t=${Date.now()}`} 
                               alt="Profile" 
+                              width={80}
+                              height={80}
                               className="w-full h-full object-cover absolute inset-0 z-10"
                               style={{
                                 display: 'block',
@@ -296,7 +232,7 @@ export default function ProfilePage() {
                         htmlFor="avatar-upload"
                         className="absolute -bottom-1 -right-1 bg-primary text-white rounded-full p-1.5 cursor-pointer hover:bg-primary-600 transition-colors shadow-lg z-20"
                         style={{ zIndex: 20 }}
-                        onClick={(e) => {
+                        onClick={() => {
                           console.log('Camera icon clicked!')
                           // Don't prevent default - let the label work
                         }}
@@ -309,7 +245,7 @@ export default function ProfilePage() {
                           onChange={handleAvatarUpload}
                           className="hidden"
                           disabled={isUploadingAvatar}
-                          onClick={(e) => {
+                          onClick={() => {
                             console.log('File input clicked!')
                           }}
                         />
@@ -443,6 +379,32 @@ export default function ProfilePage() {
                     </div>
                     <span className="text-2xl font-bold text-red-600">{favoriteCount}</span>
                   </div>
+
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Users className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-neutral-900">Followers</p>
+                        <p className="text-xs text-neutral-600">People following you</p>
+                      </div>
+                    </div>
+                    <span className="text-2xl font-bold text-blue-600">{user?._count?.followers || 0}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 bg-green-100 rounded-lg">
+                        <UserPlus className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-neutral-900">Following</p>
+                        <p className="text-xs text-neutral-600">People you follow</p>
+                      </div>
+                    </div>
+                    <span className="text-2xl font-bold text-green-600">{user?._count?.following || 0}</span>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -462,7 +424,7 @@ export default function ProfilePage() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full justify-start hover:bg-[#14b8a6] hover:text-white"
+                    className="w-full justify-start text-white hover:bg-[#14b8a6] hover:text-white"
                     onClick={() => router.push('/dashboard?filter=favorites')}
                   >
                     <Heart className="h-4 w-4 mr-2" />

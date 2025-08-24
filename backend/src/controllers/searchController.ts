@@ -34,12 +34,11 @@ export const searchPalettes = async (req: AuthRequest, res: Response) => {
       AND: []
     }
 
-    // Text search in name and description
+  // Text search in name
     if (query && typeof query === 'string') {
       whereClause.AND.push({
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } }
+      { name: { contains: query, mode: 'insensitive' } }
         ]
       })
     }
@@ -90,9 +89,7 @@ export const searchPalettes = async (req: AuthRequest, res: Response) => {
         select: {
           id: true,
           name: true,
-          description: true,
           colors: true,
-          imageUrl: true,
           isFavorite: true,
           createdAt: true,
           updatedAt: true

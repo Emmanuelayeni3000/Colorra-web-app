@@ -1,0 +1,36 @@
+/*
+  Warnings:
+
+  - You are about to drop the `bookmarked_palettes` table. If the table is not empty, all the data it contains will be lost.
+  - You are about to drop the column `category` on the `palettes` table. All the data in the column will be lost.
+  - You are about to drop the column `isPublic` on the `palettes` table. All the data in the column will be lost.
+
+*/
+-- DropIndex
+DROP INDEX "bookmarked_palettes_userId_paletteId_key";
+
+-- DropTable
+PRAGMA foreign_keys=off;
+DROP TABLE "bookmarked_palettes";
+PRAGMA foreign_keys=on;
+
+-- RedefineTables
+PRAGMA defer_foreign_keys=ON;
+PRAGMA foreign_keys=OFF;
+CREATE TABLE "new_palettes" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "colors" TEXT NOT NULL,
+    "imageUrl" TEXT,
+    "isFavorite" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "userId" TEXT NOT NULL,
+    CONSTRAINT "palettes_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+INSERT INTO "new_palettes" ("colors", "createdAt", "description", "id", "imageUrl", "isFavorite", "name", "updatedAt", "userId") SELECT "colors", "createdAt", "description", "id", "imageUrl", "isFavorite", "name", "updatedAt", "userId" FROM "palettes";
+DROP TABLE "palettes";
+ALTER TABLE "new_palettes" RENAME TO "palettes";
+PRAGMA foreign_keys=ON;
+PRAGMA defer_foreign_keys=OFF;

@@ -3,10 +3,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Palette, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { apiClient } from '@/lib/api'
+import { AxiosError } from 'axios'
 
 export default function SignInPage() {
   const router = useRouter()
@@ -36,11 +38,21 @@ export default function SignInPage() {
     try {
       const data = await apiClient.signIn(formData)
       login(data.user, data.token)
-      router.push('/dashboard')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password')
+
+      const { redirect } = router.query;
+      if (redirect && typeof redirect === 'string') {
+        router.push(redirect);
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.message || 'Invalid credentials. Please try again.');
+      } else {
+        setError('Invalid credentials. Please try again.');
+      }
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -50,11 +62,11 @@ export default function SignInPage() {
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="flex items-center justify-center space-x-2">
-            <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+            <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
           </Link>
           <h2 className="text-2xl font-bold text-neutral-900">Welcome back</h2>
           <p className="mt-2 text-neutral-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <Link href="/signup" className="text-[#8b5cf6] hover:text-[#7c3aed] font-medium">
               Sign up
             </Link>
@@ -81,6 +93,8 @@ export default function SignInPage() {
                 <label htmlFor="email" className="text-sm font-medium text-neutral-700">
                   Email Address
                 </label>
+
+                
                 <Input
                   id="email"
                   name="email"

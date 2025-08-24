@@ -22,49 +22,74 @@ model User {
   updatedAt        DateTime  @updatedAt
   
   palettes         Palette[]
-  sharedPalettes   PaletteShare[] @relation("SharedBy")
-  receivedPalettes PaletteShare[] @relation("SharedWith")
+  sharedPalettes   SharedPalette[] @relation("SharedBy")
+  receivedPalettes SharedPalette[] @relation("SharedWith")
   collections      Collection[]
+  bookmarkedPalettes BookmarkedPalette[] // Palettes bookmarked by this user
   
+  followers        Follow[] @relation("Following") // Users who follow this user
+  following        Follow[] @relation("Follower")  // Users this user is following
+  
+  activities       Activity[] // Activities performed by this user
+  targetActivities Activity[] @relation("TargetUserActivity") // Activities targeting this user
+  comments         Comment[] // Comments authored by this user
+
   @@map("users")
 }
 
-model Palette {
+model Follow {
   id          String   @id @default(uuid())
-  name        String
-  description String?
-  colors      String   // JSON array of hex colors
-  imageUrl    String?
-  isFavorite  Boolean  @default(false)
+  followerId  String
+  followingId String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  shares      PaletteShare[]
-  collectionPalettes CollectionPalette[]
-  
-  @@map("palettes")
+
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@map("follows")
 }
 
-model PaletteShare {
-  id          String   @id @default(uuid())
-  message     String?
-  createdAt   DateTime @default(now())
-  
-  paletteId   String
-  palette     Palette  @relation(fields: [paletteId], references: [id], onDelete: Cascade)
-  
-  sharedById  String
-  sharedBy    User     @relation("SharedBy", fields: [sharedById], references: [id], onDelete: Cascade)
-  
-  sharedWithId String
-  sharedWith   User    @relation("SharedWith", fields: [sharedWithId], references: [id], onDelete: Cascade)
-  
-  @@unique([paletteId, sharedWithId])
-  @@map("palette_shares")
+model Palette {
+  id                 String    @id @default(uuid())
+  name               String
+  colors             String
+  isPublic           Boolean   @default(false)
+  isFavorite         Boolean   @default(false) // Reintroduced: per-owner favorite flag
+  userId             String
+  user               User      @relation(fields: [userId], references: [id])
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  comments           Comment[]
+  bookmarkedPalettes BookmarkedPalette[]
+  categoryId         String?
+  category           PaletteCategory? @relation(fields: [categoryId], references: [id])
+  isPaletteOfTheDay  Boolean   @default(false)
+  sharedWith         SharedPalette[]
+  collectionPalettes CollectionPalette[]
+  activities         Activity[]
 }
+
+model PaletteCategory {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  palettes  Palette[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SharedPalette {
+  id           String   @id @default(uuid())
+  paletteId    String
+  palette      Palette  @relation(fields: [paletteId], references: [id])
+  sharedById   String
+  sharedBy     User     @relation("SharedBy", fields: [sharedById], references: [id])
+  sharedWithId String
+  sharedWith   User     @relation("SharedWith", fields: [sharedWithId], references: [id])
+  createdAt    DateTime @default(now())
+}
+
+
 
 model Collection {
   id          String   @id @default(uuid())
@@ -92,4 +117,46 @@ model CollectionPalette {
   
   @@unique([collectionId, paletteId])
   @@map("collection_palettes")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+  paletteId String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  palette   Palette  @relation(fields: [paletteId], references: [id], onDelete: Cascade)
+
+  activities Activity[] // Activities related to this comment
+}
+
+model Activity {
+  id           String   @id @default(uuid())
+  type         String   // e.g., "PALETTE_CREATED", "PALETTE_BOOKMARKED", "COMMENT_ADDED", "USER_FOLLOWED"
+  userId       String   // User who performed the action
+  user         User     @relation(fields: [userId], references: [id])
+  paletteId    String?  // Optional: if activity relates to a palette
+  palette      Palette? @relation(fields: [paletteId], references: [id])
+  commentId    String?  // Optional: if activity relates to a comment
+  comment      Comment? @relation(fields: [commentId], references: [id])
+  targetUserId String?  // Optional: if activity relates to another user (e.g., followed)
+  targetUser   User?    @relation("TargetUserActivity", fields: [targetUserId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@map("activities")
+}
+
+model BookmarkedPalette {
+  id        String   @id @default(uuid())
+  userId    String
+  paletteId String
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  palette   Palette  @relation(fields: [paletteId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, paletteId])
+  @@map("bookmarked_palettes")
 }

@@ -4,6 +4,13 @@ import { Button } from './ui/button'
 import { Spinner } from './ui/spinner'
 import { toast } from './ui/toast'
 
+interface Collection {
+  id: string;
+  name: string;
+  description: string;
+  palettes: unknown[];
+}
+
 export const CollectionsList: React.FC = () => {
   const [collections, setCollections] = useState([])
   const [loading, setLoading] = useState(true)
@@ -28,7 +35,7 @@ export const CollectionsList: React.FC = () => {
       {collections.length === 0 ? (
         <div>No collections yet.</div>
       ) : (
-        collections.map((c: any) => (
+        collections.map((c: Collection) => (
           <Card key={c.id}>
             <div className="font-bold">{c.name}</div>
             <div className="text-xs text-gray-500">{c.description}</div>

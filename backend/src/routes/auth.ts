@@ -45,6 +45,14 @@ router.post('/signup',
           email,
           password: hashedPassword,
           name: name || null
+        },
+        include: {
+          _count: {
+            select: {
+              followers: true,
+              following: true
+            }
+          }
         }
       })
 
@@ -61,7 +69,8 @@ router.post('/signup',
           id: user.id,
           email: user.email,
           name: user.name,
-          avatarUrl: null
+          avatarUrl: null,
+          _count: user._count
         },
         token
       })
@@ -89,9 +98,17 @@ router.post('/signin',
 
       const { email, password } = req.body
 
-      // Find user
+      // Find user with follower counts
       const user = await prisma.user.findUnique({
-        where: { email }
+        where: { email },
+        include: {
+          _count: {
+            select: {
+              followers: true,
+              following: true
+            }
+          }
+        }
       })
 
       if (!user) {
@@ -121,7 +138,8 @@ router.post('/signin',
           id: user.id,
           email: user.email,
           name: user.name,
-          avatarUrl
+          avatarUrl,
+          _count: user._count
         },
         token
       })

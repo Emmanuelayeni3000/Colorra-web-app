@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Plus, Search, Heart, Filter, Menu } from 'lucide-react'
+import { Plus, Search, Menu } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { usePaletteStore } from '@/store/paletteStore'
 import { usePaletteActions } from '@/hooks/usePaletteActions'
@@ -13,42 +14,31 @@ import CreatePaletteModal from '@/components/palette/CreatePaletteModal'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { user, isAuthenticated } = useAuthStore()
+  const { isAuthenticated } = useAuthStore()
   const { palettes, getFavorites, isLoading } = usePaletteStore()
   const { loadPalettes } = usePaletteActions()
   
   const [searchTerm, setSearchTerm] = useState('')
-  const [filter, setFilter] = useState<'all' | 'favorites'>('all')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
-  // Only run once on mount
+  // Load all palettes
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/signin')
+      return
     }
-    // Don't call loadPalettes here since usePaletteActions already handles it
+    loadPalettes(false, searchTerm) // Load all palettes
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [isAuthenticated, searchTerm])
 
-  // Manual refresh function for debugging
-  const handleRefresh = () => {
-    loadPalettes()
-  }
 
-  // Filter palettes based on search and filter
-  const filteredPalettes = palettes.filter(palette => {
-    const matchesSearch = palette.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (palette.description?.toLowerCase().includes(searchTerm.toLowerCase()) || false)
-    const matchesFilter = filter === 'all' || (filter === 'favorites' && palette.isFavorite)
-    return matchesSearch && matchesFilter
-  })
 
   // Pagination
   const [page, setPage] = useState(1)
   const pageSize = 20
-  const totalPages = Math.ceil(filteredPalettes.length / pageSize)
-  const paginatedPalettes = filteredPalettes.slice((page - 1) * pageSize, page * pageSize)
+  const totalPages = Math.ceil(palettes.length / pageSize)
+  const paginatedPalettes = palettes.slice((page - 1) * pageSize, page * pageSize)
 
   const favoriteCount = getFavorites().length
 
@@ -77,7 +67,7 @@ export default function DashboardPage() {
       <div className="lg:pl-64">
         {/* Top Navigation */}
         <header className="bg-white border-b border-gray-200 px-4 py-4 sm:px-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between w-full">
             <div className="flex items-center space-x-4">
               <Button
                 variant="ghost"
@@ -88,29 +78,32 @@ export default function DashboardPage() {
                 <Menu className="h-6 w-6" />
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-neutral-900">
-                  {filter === 'favorites' ? 'Favorite Palettes' : 'My Palettes'}
+                <h1 className="text-xl sm:text-2xl font-bold text-neutral-900">
+                  My Palettes
                 </h1>
-                <p className="text-neutral-600">
-                  {filteredPalettes.length} palette{filteredPalettes.length !== 1 ? 's' : ''}
+                <p className="text-sm sm:text-base text-neutral-600">
+                  {palettes.length} palette{palettes.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
             
-            <Button 
-              onClick={() => setCreateModalOpen(true)}
-              className="bg-[#14b8a6] text-white hover:bg-[#0f766e]"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Palette
-            </Button>
-            <Button 
-              onClick={handleRefresh}
-              variant="outline"
-              className="hover:bg-[#8b5cf6] hover:text-white"
-            >
-              Refresh
-            </Button>
+            <div className="flex items-center space-x-4 ml-auto">
+              <Button 
+                variant="outline" 
+                className="border-[#14b8a6] text-[#14b8a6] hover:bg-[#14b8a6] hover:text-white"
+                onClick={() => router.push('/explore')}
+              >
+                Explore Palettes
+              </Button>
+              <Button 
+                onClick={() => setCreateModalOpen(true)}
+                className="bg-[#14b8a6] text-white hover:bg-[#0f766e]"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Palette
+              </Button>
+            </div>
+            
           </div>
         </header>
 
@@ -118,7 +111,7 @@ export default function DashboardPage() {
         <div className="px-4 py-6 sm:px-6">
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             {/* Search */}
-            <div className="relative flex-1">
+            <div className="relative flex-1 max-w-lg">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
               <Input
                 placeholder="Search palettes..."
@@ -128,25 +121,7 @@ export default function DashboardPage() {
               />
             </div>
             
-            {/* Filter Buttons */}
-            <div className="flex gap-2">
-              <Button
-                variant={filter === 'all' ? 'default' : 'outline'}
-                onClick={() => setFilter('all')}
-                className={`min-w-[80px] ${filter !== 'all' ? 'hover:bg-[#14b8a6] hover:text-white' : 'text-white'}`}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                All
-              </Button>
-              <Button
-                variant={filter === 'favorites' ? 'default' : 'outline'}
-                onClick={() => setFilter('favorites')}
-                className={`min-w-[100px] ${filter !== 'favorites' ? 'hover:bg-[#14b8a6] hover:text-white' : 'text-white'}`}
-              >
-                <Heart className="h-4 w-4 mr-2" />
-                Favorites ({favoriteCount})
-              </Button>
-            </div>
+            {/* Filter Buttons (removed) */}
           </div>
 
           {/* Palettes Grid */}
@@ -154,12 +129,12 @@ export default function DashboardPage() {
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8b5cf6]"></div>
             </div>
-          ) : filteredPalettes.length === 0 ? (
+          ) : palettes.length === 0 ? (
             <Card className="text-center py-12">
               <CardHeader>
                 <CardTitle className="text-neutral-600">
-                  {searchTerm || filter === 'favorites' 
-                    ? 'No palettes found' 
+                  {searchTerm 
+                    ? 'No palettes found matching your search' 
                     : 'No palettes yet'
                   }
                 </CardTitle>
@@ -167,13 +142,11 @@ export default function DashboardPage() {
               <CardContent>
                 <p className="text-neutral-500 mb-4">
                   {searchTerm 
-                    ? 'Try adjusting your search terms'
-                    : filter === 'favorites'
-                    ? 'You haven\'t favorited any palettes yet'
+                    ? 'Try adjusting your search terms or clear the search'
                     : 'Create your first palette to get started'
                   }
                 </p>
-                {!searchTerm && filter !== 'favorites' && (
+                {!searchTerm && (
                   <Button 
                     onClick={() => setCreateModalOpen(true)}
                     className="bg-[#14b8a6] text-white hover:bg-[#0f766e]"
@@ -186,7 +159,7 @@ export default function DashboardPage() {
             </Card>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                 {paginatedPalettes.map((palette) => (
                   <PaletteCard key={palette.id} palette={palette} />
                 ))}

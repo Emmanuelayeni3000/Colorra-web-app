@@ -10,6 +10,9 @@ import passwordResetRoutes from './routes/passwordReset'
 import uploadRoutes from './routes/upload'
 import sharingRoutes from './routes/sharing'
 import collectionsRoutes from './routes/collections'
+import commentsRoutes from './routes/comments'
+import followsRoutes from './routes/follows'
+import activityRoutes from './routes/activity'
 import { errorHandler } from './middleware/errorHandler'
 
 dotenv.config()
@@ -18,14 +21,7 @@ const app = express()
 const PORT = process.env.PORT || 5000
 
 // Middleware
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://your-frontend-domain.com' 
-    : ['http://localhost:3000', 'http://127.0.0.1:3000'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}))
+app.use(cors())
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -54,6 +50,9 @@ app.use('/api/password-reset', passwordResetRoutes)
 app.use('/api/upload', uploadRoutes)
 app.use('/api/sharing', sharingRoutes)
 app.use('/api/collections', collectionsRoutes)
+app.use('/api/palettes', commentsRoutes)
+app.use('/api/users', followsRoutes)
+app.use('/api/activity', activityRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {

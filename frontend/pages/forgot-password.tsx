@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
+import { AxiosError } from 'axios'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, Mail, CheckCircle } from 'lucide-react'
 import { apiClient } from '@/lib/api'
-
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -20,8 +21,12 @@ export default function ForgotPasswordPage() {
     try {
       await apiClient.forgotPassword({ email })
       setIsSuccess(true)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to send reset email. Please try again.')
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.message || 'Failed to send reset email. Please try again.');
+      } else {
+        setError('Failed to send reset email. Please try again.');
+      }
     } finally {
       setIsLoading(false)
     }
@@ -34,7 +39,7 @@ export default function ForgotPasswordPage() {
           {/* Header */}
           <div className="text-center">
             <Link href="/" className="flex items-center justify-center space-x-2">
-              <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+              <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
             </Link>
             <h2 className="text-2xl font-bold text-neutral-900">Check your email</h2>
           </div>
@@ -49,13 +54,13 @@ export default function ForgotPasswordPage() {
               </div>
               <CardTitle className="text-2xl text-neutral-900">Email sent!</CardTitle>
               <CardDescription className="text-neutral-600">
-                We've sent a password reset link to <strong>{email}</strong>
+                We&apos;ve sent a password reset link to <strong>{email}</strong>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-center text-sm text-neutral-600">
                 <p>Check your email and click the link to reset your password.</p>
-                <p className="mt-2">Didn't receive the email? Check your spam folder.</p>
+                                <p className="mt-2">Didn&apos;t receive the email? Check your spam folder.</p>
               </div>
               
               <div className="flex flex-col space-y-3">
@@ -92,11 +97,11 @@ export default function ForgotPasswordPage() {
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="flex items-center justify-center space-x-2">
-            <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+            <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
           </Link>
           <h2 className="text-2xl font-bold text-neutral-900">Forgot your password?</h2>
           <p className="mt-2 text-neutral-600">
-            No worries! Enter your email address and we'll send you a link to reset your password.
+            No worries! Enter your email address and we&apos;ll send you a link to reset your password.
           </p>
         </div>
 

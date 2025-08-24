@@ -1,281 +1,119 @@
-import { Response } from 'express'
-import { PrismaClient } from '@prisma/client'
-import { body, validationResult } from 'express-validator'
-import { AuthRequest } from '../middleware/auth'
+import { Response } from 'express';
+import { PrismaClient } from '@prisma/client';
+import { AuthRequest } from '../middleware/auth';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
-// Share a palette with another user
 export const sharePalette = async (req: AuthRequest, res: Response) => {
+  const { paletteId } = req.params;
+  const { sharedWithId } = req.body;
+  const sharedById = req.user?.id;
+
+  if (!sharedById) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' })
-    }
-
-    const { paletteId, userEmail, message } = req.body
-
-    // Check validation results
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        message: 'Validation failed',
-        errors: errors.array()
-      })
-    }
-
-    // Check if palette exists and belongs to user
-    const palette = await prisma.palette.findFirst({
-      where: {
-        id: paletteId,
-        userId: req.user.id
-      }
-    })
+    // Check if the palette exists and belongs to the user sharing it
+    const palette = await prisma.palette.findUnique({
+      where: { id: paletteId },
+    });
 
     if (!palette) {
-      return res.status(404).json({ message: 'Palette not found or access denied' })
+      return res.status(404).json({ message: 'Palette not found' });
     }
 
-    // Check if target user exists
-    const targetUser = await prisma.user.findUnique({
-      where: { email: userEmail }
-    })
-
-    if (!targetUser) {
-      return res.status(404).json({ message: 'User not found' })
+    if (palette.userId !== sharedById) {
+      return res.status(403).json({ message: 'You can only share your own palettes' });
     }
 
-    // Check if already shared with this user
-    const existingShare = await prisma.paletteShare.findFirst({
+    // Check if the palette is already shared with this user
+    const existingShare = await prisma.sharedPalette.findFirst({
       where: {
-        paletteId,
-        sharedWithId: targetUser.id
-      }
-    })
+        paletteId: paletteId,
+        sharedById: sharedById,
+        sharedWithId: sharedWithId,
+      },
+    });
 
     if (existingShare) {
-      return res.status(400).json({ message: 'Palette already shared with this user' })
+      return res.status(409).json({ message: 'Palette already shared with this user' });
     }
 
-    // Create share record
-    const share = await prisma.paletteShare.create({
+    const sharedPalette = await prisma.sharedPalette.create({
       data: {
         paletteId,
-        sharedById: req.user.id,
-        sharedWithId: targetUser.id,
-        message: message || null
+        sharedById,
+        sharedWithId,
       },
-      include: {
-        palette: {
-          select: {
-            name: true,
-            colors: true
-          }
-        },
-        sharedBy: {
-          select: {
-            name: true,
-            email: true
-          }
-        },
-        sharedWith: {
-          select: {
-            name: true,
-            email: true
-          }
-        }
-      }
-    })
+    });
 
-    res.status(201).json({
-      message: 'Palette shared successfully',
-      data: share
-    })
+    res.status(201).json(sharedPalette);
   } catch (error) {
-    console.error('Share palette error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('Error sharing palette:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
-// Get palettes shared with the current user
 export const getSharedPalettes = async (req: AuthRequest, res: Response) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' })
-    }
-
-    const page = parseInt(req.query.page as string) || 1
-    const limit = parseInt(req.query.limit as string) || 10
-
-    const skip = (page - 1) * limit
-
-    const sharedPalettes = await prisma.paletteShare.findMany({
+    const sharedPalettes = await prisma.sharedPalette.findMany({
       where: {
-        sharedWithId: req.user.id
+        sharedWithId: userId,
       },
       include: {
-        palette: {
-          select: {
-            id: true,
-            name: true,
-            colors: true,
-            description: true,
-            createdAt: true
-          }
-        },
-        sharedBy: {
-          select: {
-            name: true,
-            email: true
-          }
-        }
+        palette: true, // Include the full palette details
+  sharedBy: { select: { id: true, name: true, avatarUrl: true } },
       },
-      orderBy: {
-        createdAt: 'desc'
+    });
+
+    const processedPalettes = sharedPalettes.map(sp => ({
+      ...sp,
+      palette: {
+        ...sp.palette,
+        colors: JSON.parse(sp.palette.colors as string),
       },
-      skip,
-      take: limit
-    })
+    }));
 
-    const totalCount = await prisma.paletteShare.count({
-      where: {
-        sharedWithId: req.user.id
-      }
-    })
-
-    const totalPages = Math.ceil(totalCount / limit)
-
-    res.json({
-      message: 'Shared palettes retrieved successfully',
-      data: {
-        palettes: sharedPalettes,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalCount,
-          hasNext: page < totalPages,
-          hasPrev: page > 1
-        }
-      }
-    })
+    res.status(200).json(processedPalettes);
   } catch (error) {
-    console.error('Get shared palettes error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('Error fetching shared palettes:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-}
+};
 
-// Get palettes shared by the current user
-export const getMySharedPalettes = async (req: AuthRequest, res: Response) => {
+export const searchUsers = async (req: AuthRequest, res: Response) => {
+  const { query } = req.query;
+
+  if (!query || typeof query !== 'string' || query.trim() === '') {
+    return res.status(400).json({ message: 'Search query is required' });
+  }
+
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' })
-    }
-
-    const page = parseInt(req.query.page as string) || 1
-    const limit = parseInt(req.query.limit as string) || 10
-
-    const skip = (page - 1) * limit
-
-    const mySharedPalettes = await prisma.paletteShare.findMany({
+    const users = await prisma.user.findMany({
       where: {
-        sharedById: req.user.id
+        OR: [
+          { name: { contains: query.trim() } },
+          { email: { contains: query.trim() } },
+        ],
       },
-      include: {
-        palette: {
-          select: {
-            id: true,
-            name: true,
-            colors: true,
-            description: true,
-            createdAt: true
-          }
-        },
-        sharedWith: {
-          select: {
-            name: true,
-            email: true
-          }
-        }
+      select: {
+        id: true,
+        name: true,
+        avatarUrl: true,
       },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      skip,
-      take: limit
-    })
+      take: 10, // Limit results
+    });
 
-    const totalCount = await prisma.paletteShare.count({
-      where: {
-        sharedById: req.user.id
-      }
-    })
-
-    const totalPages = Math.ceil(totalCount / limit)
-
-    res.json({
-      message: 'My shared palettes retrieved successfully',
-      data: {
-        palettes: mySharedPalettes,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalCount,
-          hasNext: page < totalPages,
-          hasPrev: page > 1
-        }
-      }
-    })
+    res.status(200).json(users);
   } catch (error) {
-    console.error('Get my shared palettes error:', error)
-    res.status(500).json({ message: 'Internal server error' })
+    console.error('Error searching users:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-}
-
-// Remove palette share
-export const removePaletteShare = async (req: AuthRequest, res: Response) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Authentication required' })
-    }
-
-    const { shareId } = req.params
-
-    // Find the share record
-    const share = await prisma.paletteShare.findUnique({
-      where: { id: shareId }
-    })
-
-    if (!share) {
-      return res.status(404).json({ message: 'Share not found' })
-    }
-
-    // Check if user is the owner of the palette or the recipient
-    if (share.sharedById !== req.user.id && share.sharedWithId !== req.user.id) {
-      return res.status(403).json({ message: 'Access denied' })
-    }
-
-    // Delete the share
-    await prisma.paletteShare.delete({
-      where: { id: shareId }
-    })
-
-    res.json({ message: 'Palette share removed successfully' })
-  } catch (error) {
-    console.error('Remove palette share error:', error)
-    res.status(500).json({ message: 'Internal server error' })
-  }
-}
-
-// Validation rules
-export const sharePaletteValidation = [
-  body('paletteId')
-    .notEmpty()
-    .withMessage('Palette ID is required'),
-  body('userEmail')
-    .isEmail()
-    .withMessage('Valid email address is required')
-    .normalizeEmail(),
-  body('message')
-    .optional()
-    .isLength({ max: 500 })
-    .withMessage('Message must be less than 500 characters')
-]
+};

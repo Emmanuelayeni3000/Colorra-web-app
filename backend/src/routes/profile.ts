@@ -7,12 +7,16 @@ import {
   changePassword,
   uploadAvatar,
   updateProfileValidation,
-  changePasswordValidation
+  changePasswordValidation,
+  getProfileById
 } from '../controllers/profileController'
 
 const router = express.Router()
 
-// All profile routes require authentication
+// GET /api/profile/:userId - Get user profile by ID (public route)
+router.get('/:userId', getProfileById)
+
+// All other profile routes require authentication
 router.use(authenticateToken)
 
 // GET /api/profile - Get user profile

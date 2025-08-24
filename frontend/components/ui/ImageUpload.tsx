@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
+import Image from 'next/image'
 import { toast } from 'react-hot-toast'
 
 interface ImageUploadProps {
@@ -132,9 +133,11 @@ export default function ImageUpload({ onColorsExtracted, onError }: ImageUploadP
           <CardContent className="p-4">
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
-                <img
+                <Image
                   src={uploadedImage.url}
                   alt={uploadedImage.originalName}
+                  width={80}
+                  height={80}
                   className="w-20 h-20 object-cover rounded-lg border"
                 />
               </div>

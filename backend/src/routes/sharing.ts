@@ -1,25 +1,16 @@
-import express from 'express'
-import { 
-  sharePalette, 
-  getSharedPalettes, 
-  getMySharedPalettes, 
-  removePaletteShare,
-  sharePaletteValidation 
-} from '../controllers/sharingController'
-import { authenticateToken } from '../middleware/auth'
+import express from 'express';
+import { sharePalette, getSharedPalettes, searchUsers } from '../controllers/sharingController';
+import { authenticateToken } from '../middleware/auth'; // Fixed import name
 
-const router = express.Router()
+const router = express.Router();
 
-// Share a palette (protected route)
-router.post('/share', authenticateToken, sharePaletteValidation, sharePalette)
+// Share a palette with another user
+router.post('/:paletteId/share', authenticateToken, sharePalette);
 
-// Get palettes shared with me (protected route)
-router.get('/received', authenticateToken, getSharedPalettes)
+// Get palettes shared with the authenticated user
+router.get('/shared-with-me', authenticateToken, getSharedPalettes);
 
-// Get palettes I've shared (protected route)
-router.get('/sent', authenticateToken, getMySharedPalettes)
+// Search for users
+router.get('/search-users', authenticateToken, searchUsers);
 
-// Remove palette share (protected route)
-router.delete('/:shareId', authenticateToken, removePaletteShare)
-
-export default router
+export default router;

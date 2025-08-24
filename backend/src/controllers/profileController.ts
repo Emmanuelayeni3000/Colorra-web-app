@@ -19,6 +19,7 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         id: true,
         email: true,
         name: true,
+        avatarUrl: true,
         createdAt: true,
         updatedAt: true,
         _count: {
@@ -27,17 +28,13 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
           }
         }
       }
-    }) as any
+    })
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
     }
 
-    // Get avatarUrl separately using raw query
-    const avatarResult = await prisma.$queryRaw`SELECT avatarUrl FROM users WHERE id = ${userId}` as any
-    const avatarUrl = avatarResult[0]?.avatarUrl || null
-
-    res.json({ ...user, avatarUrl })
+    res.json(user)
   } catch (error) {
     console.error('Get profile error:', error)
     res.status(500).json({ message: 'Internal server error' })
@@ -83,16 +80,13 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
         id: true,
         email: true,
         name: true,
+        avatarUrl: true,
         createdAt: true,
         updatedAt: true
       }
-    }) as any
+    })
 
-    // Get avatarUrl separately using raw query
-    const avatarResult = await prisma.$queryRaw`SELECT avatarUrl FROM users WHERE id = ${userId}` as any
-    const avatarUrl = avatarResult[0]?.avatarUrl || null
-
-    res.json({ ...updatedUser, avatarUrl })
+    res.json(updatedUser)
   } catch (error) {
     console.error('Update profile error:', error)
     res.status(500).json({ message: 'Internal server error' })
@@ -188,26 +182,25 @@ export const uploadAvatar = async (req: AuthRequest, res: Response) => {
     // File path relative to the uploads directory
     const avatarUrl = `/uploads/${req.file.filename}`
 
-    // Update user with new avatar URL using raw query
-    await prisma.$executeRaw`UPDATE users SET avatarUrl = ${avatarUrl} WHERE id = ${userId}`
-    console.log('Updated user avatar URL in database:', avatarUrl)
-
-    // Get updated user data
-    const updatedUser = await prisma.user.findUnique({
+    // Update user with new avatar URL
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
+      data: { avatarUrl },
       select: {
         id: true,
         email: true,
         name: true,
+        avatarUrl: true,
         createdAt: true,
         updatedAt: true
       }
-    }) as any
+    })
+    console.log('Updated user avatar URL in database:', avatarUrl)
 
     console.log('Returning success response')
     res.json({
       message: 'Avatar uploaded successfully',
-      user: { ...updatedUser, avatarUrl },
+      user: updatedUser,
       avatarUrl
     })
   } catch (error) {
@@ -216,5 +209,39 @@ export const uploadAvatar = async (req: AuthRequest, res: Response) => {
       message: 'Internal server error',
       error: error instanceof Error ? error.message : 'Unknown error'
     })
+  }
+}
+
+// Get profile by user ID (for viewing other users' profiles)
+export const getProfileById = async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        avatarUrl: true,
+        createdAt: true,
+        _count: {
+          select: {
+            palettes: true,
+            followers: true,
+            following: true
+          }
+        }
+      }
+    })
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' })
+    }
+
+    res.json(user)
+  } catch (error) {
+    console.error('Get profile by ID error:', error)
+    res.status(500).json({ message: 'Internal server error' })
   }
 }

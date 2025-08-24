@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadAvatar = exports.changePasswordValidation = exports.updateProfileValidation = exports.changePassword = exports.updateProfile = exports.getProfile = void 0;
+exports.getProfileById = exports.uploadAvatar = exports.changePasswordValidation = exports.updateProfileValidation = exports.changePassword = exports.updateProfile = exports.getProfile = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const client_1 = require("@prisma/client");
 const express_validator_1 = require("express-validator");
@@ -18,6 +18,7 @@ const getProfile = async (req, res) => {
                 id: true,
                 email: true,
                 name: true,
+                avatarUrl: true,
                 createdAt: true,
                 updatedAt: true,
                 _count: {
@@ -30,10 +31,7 @@ const getProfile = async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        // Get avatarUrl separately using raw query
-        const avatarResult = await prisma.$queryRaw `SELECT avatarUrl FROM users WHERE id = ${userId}`;
-        const avatarUrl = avatarResult[0]?.avatarUrl || null;
-        res.json({ ...user, avatarUrl });
+        res.json(user);
     }
     catch (error) {
         console.error('Get profile error:', error);
@@ -76,14 +74,12 @@ const updateProfile = async (req, res) => {
                 id: true,
                 email: true,
                 name: true,
+                avatarUrl: true,
                 createdAt: true,
                 updatedAt: true
             }
         });
-        // Get avatarUrl separately using raw query
-        const avatarResult = await prisma.$queryRaw `SELECT avatarUrl FROM users WHERE id = ${userId}`;
-        const avatarUrl = avatarResult[0]?.avatarUrl || null;
-        res.json({ ...updatedUser, avatarUrl });
+        res.json(updatedUser);
     }
     catch (error) {
         console.error('Update profile error:', error);
@@ -168,24 +164,24 @@ const uploadAvatar = async (req, res) => {
         });
         // File path relative to the uploads directory
         const avatarUrl = `/uploads/${req.file.filename}`;
-        // Update user with new avatar URL using raw query
-        await prisma.$executeRaw `UPDATE users SET avatarUrl = ${avatarUrl} WHERE id = ${userId}`;
-        console.log('Updated user avatar URL in database:', avatarUrl);
-        // Get updated user data
-        const updatedUser = await prisma.user.findUnique({
+        // Update user with new avatar URL
+        const updatedUser = await prisma.user.update({
             where: { id: userId },
+            data: { avatarUrl },
             select: {
                 id: true,
                 email: true,
                 name: true,
+                avatarUrl: true,
                 createdAt: true,
                 updatedAt: true
             }
         });
+        console.log('Updated user avatar URL in database:', avatarUrl);
         console.log('Returning success response');
         res.json({
             message: 'Avatar uploaded successfully',
-            user: { ...updatedUser, avatarUrl },
+            user: updatedUser,
             avatarUrl
         });
     }
@@ -198,4 +194,36 @@ const uploadAvatar = async (req, res) => {
     }
 };
 exports.uploadAvatar = uploadAvatar;
+// Get profile by user ID (for viewing other users' profiles)
+const getProfileById = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                avatarUrl: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        palettes: true,
+                        followers: true,
+                        following: true
+                    }
+                }
+            }
+        });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.json(user);
+    }
+    catch (error) {
+        console.error('Get profile by ID error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+exports.getProfileById = getProfileById;
 //# sourceMappingURL=profileController.js.map

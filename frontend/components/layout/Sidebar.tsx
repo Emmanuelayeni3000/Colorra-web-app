@@ -2,16 +2,19 @@ import React from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
-import { 
-  Palette, 
-  Heart, 
-  User, 
-  LogOut, 
+import {
+  Palette,
+  Heart,
+  User,
+  LogOut,
   X,
-  Home
+  Home,
+  Users,
+  Star
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 interface SidebarProps {
   isOpen: boolean
@@ -38,10 +41,22 @@ export default function Sidebar({ isOpen, onClose, favoriteCount }: SidebarProps
     },
     {
       name: 'Favorites',
-      href: '/dashboard?filter=favorites',
+      href: '/favorites',
       icon: Heart,
-      current: router.query.filter === 'favorites',
+      current: router.pathname === '/favorites',
       badge: favoriteCount
+    },
+    {
+      name: 'Saved Palettes',
+      href: '/saved',
+      icon: Star,
+      current: router.pathname === '/saved'
+    },
+    {
+      name: 'Shared Palettes', // New navigation item
+      href: '/shared',
+      icon: Users, // Using Users icon for shared palettes
+      current: router.pathname === '/shared'
     },
     {
       name: 'Profile',
@@ -64,7 +79,7 @@ export default function Sidebar({ isOpen, onClose, favoriteCount }: SidebarProps
           {/* Logo */}
           <div className="flex items-center flex-shrink-0 px-4">
             <Link href="/" className="flex items-center space-x-2">
-              <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+              <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
             </Link>
           </div>
 
@@ -133,7 +148,7 @@ export default function Sidebar({ isOpen, onClose, favoriteCount }: SidebarProps
           {/* Header with close button */}
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <Link href="/" className="flex items-center space-x-2">
-              <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+              <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
             </Link>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-6 w-6" />
@@ -155,6 +170,7 @@ export default function Sidebar({ isOpen, onClose, favoriteCount }: SidebarProps
             {navigation.map((item) => {
               const Icon = item.icon
               return (
+                
                 <Link
                   key={item.name}
                   href={item.href}

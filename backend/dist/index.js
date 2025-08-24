@@ -15,19 +15,15 @@ const passwordReset_1 = __importDefault(require("./routes/passwordReset"));
 const upload_1 = __importDefault(require("./routes/upload"));
 const sharing_1 = __importDefault(require("./routes/sharing"));
 const collections_1 = __importDefault(require("./routes/collections"));
+const comments_1 = __importDefault(require("./routes/comments"));
+const follows_1 = __importDefault(require("./routes/follows"));
+const activity_1 = __importDefault(require("./routes/activity"));
 const errorHandler_1 = require("./middleware/errorHandler");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 5000;
 // Middleware
-app.use((0, cors_1.default)({
-    origin: process.env.NODE_ENV === 'production'
-        ? 'https://your-frontend-domain.com'
-        : ['http://localhost:3000', 'http://127.0.0.1:3000'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use((0, cors_1.default)());
 // Request logging middleware
 app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
@@ -52,6 +48,9 @@ app.use('/api/password-reset', passwordReset_1.default);
 app.use('/api/upload', upload_1.default);
 app.use('/api/sharing', sharing_1.default);
 app.use('/api/collections', collections_1.default);
+app.use('/api/palettes', comments_1.default);
+app.use('/api/users', follows_1.default);
+app.use('/api/activity', activity_1.default);
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', timestamp: new Date().toISOString() });

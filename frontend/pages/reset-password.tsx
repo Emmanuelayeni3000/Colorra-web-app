@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import Image from 'next/image'
+import { AxiosError } from 'axios'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -40,8 +42,12 @@ export default function ResetPasswordPage() {
     try {
       await apiClient.resetPassword({ token: token as string, password })
       setIsSuccess(true)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to reset password. Please try again.')
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.message || 'Failed to reset password. Please try again.');
+      } else {
+        setError('Failed to reset password. Please try again.');
+      }
     } finally {
       setIsLoading(false)
     }
@@ -53,7 +59,7 @@ export default function ResetPasswordPage() {
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <Link href="/" className="flex items-center justify-center space-x-2">
-              <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+              <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
             </Link>
             <h2 className="text-2xl font-bold text-neutral-900">Password Reset Successful</h2>
           </div>
@@ -88,7 +94,7 @@ export default function ResetPasswordPage() {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <Link href="/" className="flex items-center justify-center space-x-2">
-            <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+            <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
           </Link>
           <h2 className="text-2xl font-bold text-neutral-900">Reset your password</h2>
           <p className="mt-2 text-neutral-600">

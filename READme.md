@@ -1,107 +1,100 @@
 # Colorra Web App
 
-Colorra is a modern web application for creating, managing, and sharing color palettes. It features user authentication, persistent user profiles with avatar uploads, and a beautiful, responsive UI.
+![Colorra Banner](./frontend/public/images/colorra-logo.png)
 
-## Features
+A web application for creating, sharing, and discovering beautiful color palettes.
 
-- 🎨 **Palette Creation**: Easily create and save custom color palettes.
-- 🖼️ **Avatar Upload**: Upload and update your profile avatar with persistent storage.
-- 👤 **User Authentication**: Secure JWT-based login and registration.
-- � **Password Reset**: Secure password reset functionality with email verification.
-- 📧 **Email Service**: Automated email notifications for password resets.
-- ✨ **Modern Animations**: Beautiful scroll animations and interactive UI elements.
-- �🗂️ **Dashboard**: View and manage your palettes in a user-friendly dashboard.
-- ⚡ **Fast & Responsive**: Built with Next.js, React, Zustand, and shadcn/ui for a seamless experience.
-- 🗄️ **Persistent Storage**: All user data and images are stored securely in a SQLite database via Prisma ORM.
+## ✨ Features
 
-## Tech Stack
+*   **Palette Creation:** Generate color palettes from images or from scratch.
+*   **Palette Sharing:** Share your palettes with other users.
+*   **Discover Palettes:** Explore palettes created by the community.
+*   **User Profiles:** Create a profile and showcase your palettes.
+*   **Save & Bookmark:** Save your favorite palettes and bookmark palettes from other users.
+*   **Color Blindness Simulator:** Simulate how your palettes look to people with different types of color blindness.
 
-- **Frontend**: Next.js, React, TypeScript, Zustand, shadcn/ui, Framer Motion
-- **Backend**: Node.js, Express, Prisma ORM, SQLite
-- **Authentication**: JWT (JSON Web Tokens)
-- **Email Service**: Nodemailer with SMTP support
-- **File Uploads**: Multer middleware, Express static file serving
-- **Security**: bcryptjs password hashing, crypto token generation
+## 🚀 Tech Stack
 
-## Getting Started
+### Frontend
+
+*   [Next.js](https://nextjs.org/) - React framework for server-rendered applications.
+*   [React](https://reactjs.org/) - JavaScript library for building user interfaces.
+*   [TypeScript](https://www.typescriptlang.org/) - Typed superset of JavaScript.
+*   [Tailwind CSS](https://tailwindcss.com/) - A utility-first CSS framework.
+*   [Zustand](https://github.com/pmndrs/zustand) - Small, fast and scalable bearbones state-management solution.
+
+### Backend
+
+*   [Node.js](https://nodejs.org/) - JavaScript runtime built on Chrome's V8 JavaScript engine.
+*   [Express](https://expressjs.com/) - Fast, unopinionated, minimalist web framework for Node.js.
+*   [Prisma](https://www.prisma.io/) - Next-generation ORM for Node.js and TypeScript.
+*   [PostgreSQL](https://www.postgresql.org/) - A powerful, open source object-relational database system.
+
+## 🏁 Getting Started
+
+To get a local copy up and running, please follow these simple steps.
 
 ### Prerequisites
-- Node.js (v18+ recommended)
-- npm or yarn
+
+*   Node.js (v18 or later)
+*   npm
+*   Git
 
 ### Installation
 
-1. **Clone the repository:**
-   ```sh
-   git clone https://github.com/Emmanuelayeni3000/Colorra-web-app.git
-   cd Colorra-web-app
-   ```
-2. **Install dependencies:**
-   ```sh
-   cd backend
-   npm install
-   cd ../frontend
-   npm install
-   ```
-3. **Set up environment variables:**
-   - Copy `.env.example` to `.env` in both `backend` and `frontend` folders and fill in the required values.
-   - For email functionality, configure SMTP settings in the backend `.env` file:
-     ```
-     SMTP_HOST=smtp.gmail.com
-     SMTP_PORT=587
-     SMTP_USER=your-email@gmail.com
-     SMTP_PASS=your-app-password
-     FROM_EMAIL=noreply@colorra.com
-     ```
+1.  Clone the repo
+    ```sh
+    git clone https://github.com/your_username/colorra-web-app.git
+    ```
+2.  Install NPM packages for the backend
+    ```sh
+    cd backend
+    npm install
+    ```
+3.  Install NPM packages for the frontend
+    ```sh
+    cd ../frontend
+    npm install
+    ```
 
-4. **Set up the database:**
-   ```sh
-   cd backend
-   npx prisma generate
-   npx prisma db push
-   npx prisma db seed  # Optional: Creates demo data
-   ```
+### Running the Application
 
-5. **Start the backend server:**
-   ```sh
-   npm run dev
-   ```
+1.  Start the backend server
+    ```sh
+    cd backend
+    npm run dev
+    ```
+2.  Start the frontend development server
+    ```sh
+    cd ../frontend
+    npm run dev
+    ```
 
-6. **Start the frontend app:**
-   ```sh
-   cd ../frontend
-   npm run dev
-   ```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-7. **Open your browser:**
-   Visit [http://localhost:3000](http://localhost:3000)
+## 📸 Screenshots
 
-## Folder Structure
+![Homepage](./frontend/public/images/colorra%20homepage.PNG)
+_The homepage of the Colorra web app._
 
-```
-Colorra-web-app/
-├── backend/         # Express API, Prisma, uploads
-├── frontend/        # Next.js app, React components
-├── PRD.md           # Product requirements
-├── README.md        # Project documentation
-```
+![Explore Section](./frontend/public/images/Colorra%20explore%20section.PNG)
+_The explore section where users can discover new palettes._
 
-## Development
-- **Frontend**: Located in `/frontend`. Uses Next.js, Zustand, shadcn/ui, Framer Motion.
-- **Backend**: Located in `/backend`. Uses Express, Prisma, Multer, Nodemailer.
-- **Database**: SQLite with Prisma ORM, includes user authentication and password reset.
-- **Uploads**: User avatars are stored in `/backend/uploads` and served statically.
-- **Email**: Password reset emails sent via Nodemailer (SMTP configuration required).
+![Second Section](./frontend/public/images/Colorra%20second%20section.PNG)
+_A section of the homepage._
 
-## Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+## 🤝 Contributing
 
-## License
-[MIT](LICENSE)
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-## Author
-[Emmanuel Ayeni](mailto:ayeniemmanuel914@gmail.com)
+1.  Fork the Project
+2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4.  Push to the Branch (`git push origin feature/AmazingFeature`)
+5.  Open a Pull Request
 
----
+## 📜 License
 
-Enjoy using Colorra! If you have any questions or feedback, feel free to open an issue or contact the author.
+Distributed under the MIT License. See `LICENSE` for more information.
+
+## Developed By EAWEBCRAFT

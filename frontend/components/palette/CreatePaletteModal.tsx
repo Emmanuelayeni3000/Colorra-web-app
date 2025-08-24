@@ -9,12 +9,15 @@ import { usePaletteStore } from '@/store/paletteStore'
 import { extractColorsFromImage, validateImageFile, generateComplementaryColors } from '@/lib/colorExtraction'
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 interface CreatePaletteModalProps {
   isOpen: boolean
   onClose: () => void
   onCreated?: () => void
 }
+
+const categories = ["Warm", "Cool", "Earth Tones", "Pastel", "Neutral", "Vibrant/High Contrast", "Minimal"];
 
 export default function CreatePaletteModal({ isOpen, onClose, onCreated }: CreatePaletteModalProps) {
   const { createPalette } = usePaletteActions()
@@ -23,11 +26,13 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [colors, setColors] = useState<string[]>(['#7F56D9'])
+  const [isPublic, setIsPublic] = useState(false)
+  const [category, setCategory] = useState<string>('')
   const [activeColorIndex, setActiveColorIndex] = useState(0)
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [isExtracting, setIsExtracting] = useState(false)
 
-  const handleColorChange = (color: any) => {
+  const handleColorChange = (color: { hex: string }) => {
     const newColors = [...colors]
     newColors[activeColorIndex] = color.hex
     setColors(newColors)
@@ -89,18 +94,22 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
         name: name.trim(),
         description: description.trim() || undefined,
         colors,
+        isPublic,
+        category,
       })
 
       // Reset form
       setName('')
       setDescription('')
       setColors(['#7F56D9'])
+      setIsPublic(false)
+      setCategory('')
       setActiveColorIndex(0)
       setShowColorPicker(false)
 
       if (onCreated) onCreated()
       onClose()
-    } catch (error) {
+    } catch {
       // Error handling is done in the hook
     }
   }
@@ -149,6 +158,39 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Optional description"
                 />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <label htmlFor="category" className="text-sm font-medium text-neutral-700">
+                  Category
+                </label>
+                <Select onValueChange={setCategory} value={category}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Make Public */}
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="isPublicCreate"
+                  checked={isPublic}
+                  onChange={(e) => setIsPublic(e.target.checked)}
+                />
+                <label
+                  htmlFor="isPublicCreate"
+                  className="text-sm font-medium text-neutral-700"
+                >
+                  Make this palette public
+                </label>
               </div>
 
               {/* Color Generation Options */}
@@ -262,7 +304,7 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="flex justify-center">
+                  <div className="flex justify-center bg-white p-4 rounded-lg border">
                     <ChromePicker
                       color={colors[activeColorIndex]}
                       onChange={handleColorChange}

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Share2, Mail, MessageSquare } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { validateEmail } from '@/lib/validations'
@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils"
 const Dialog = DialogPrimitive.Root
 const DialogTrigger = DialogPrimitive.Trigger
 const DialogPortal = DialogPrimitive.Portal
-const DialogClose = DialogPrimitive.Close
+
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
@@ -113,9 +113,8 @@ const DialogDescription = React.forwardRef<
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
 // Inline Textarea component
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentPropsWithoutRef<'textarea'>>(
   ({ className, ...props }, ref) => {
     return (
       <textarea
@@ -179,7 +178,7 @@ export default function SharePaletteModal({
       const data = await response.json()
 
       if (response.ok) {
-        toast.success(`Palette "${paletteName}" shared successfully!`)
+        toast.success(`Palette &quot;${paletteName}&quot; shared successfully!`)
         setOpen(false)
         setUserEmail('')
         setMessage('')
@@ -211,7 +210,7 @@ export default function SharePaletteModal({
             <span>Share Palette</span>
           </DialogTitle>
           <DialogDescription>
-            Share "{paletteName}" with another user
+            Share &quot;{paletteName}&quot; with another user
           </DialogDescription>
         </DialogHeader>
 

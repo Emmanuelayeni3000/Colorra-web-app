@@ -31,7 +31,7 @@ export const SharePaletteModal: React.FC<SharePaletteModalProps> = ({ paletteId,
       } else {
         toast.error(data.message || 'Failed to share palette')
       }
-    } catch (err) {
+    } catch {
       toast.error('Error sharing palette')
     } finally {
       setLoading(false)
@@ -41,10 +41,10 @@ export const SharePaletteModal: React.FC<SharePaletteModalProps> = ({ paletteId,
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Share Palette</Button>
+        <Button variant="outline" className="text-white">Share Palette</Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Share "{paletteName}"</DialogTitle>
+        <DialogTitle>Share &quot;{paletteName}&quot;</DialogTitle>
         <DialogDescription>Send this palette to another user by email.</DialogDescription>
         <Input
           type="email"

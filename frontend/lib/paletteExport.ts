@@ -1,4 +1,5 @@
 import { Palette } from '@/store/paletteStore'
+import { getContrastingTextColor } from '@/lib/utils'
 
 export const exportPaletteAsJSON = (palette: Palette) => {
   const exportData = {
@@ -138,9 +139,9 @@ function hexToHsl(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   if (!result) return hex
   
-  let r = parseInt(result[1], 16) / 255
-  let g = parseInt(result[2], 16) / 255
-  let b = parseInt(result[3], 16) / 255
+  const r = parseInt(result[1], 16) / 255
+  const g = parseInt(result[2], 16) / 255
+  const b = parseInt(result[3], 16) / 255
   
   const max = Math.max(r, g, b)
   const min = Math.min(r, g, b)
@@ -167,4 +168,59 @@ function hexToHsl(hex: string): string {
   }
   
   return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`
+}
+
+export const exportPaletteAsPNG = (palette: Palette) => {
+  try {
+    const colors = palette.colors;
+    const blockWidth = 160; // width per color
+    const height = 160; // total image height
+    const width = blockWidth * colors.length;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas not supported');
+
+    // Draw each color block
+    colors.forEach((color, idx) => {
+      const x = idx * blockWidth;
+      ctx.fillStyle = color;
+      ctx.fillRect(x, 0, blockWidth, height);
+
+      // Text label (hex)
+      ctx.font = '600 18px Inter, Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = getContrastingTextColor(color);
+      ctx.fillText(color.toUpperCase(), x + blockWidth / 2, height / 2);
+    });
+
+    // Footer strip with palette name
+    const footerHeight = 32;
+    const finalCanvas = document.createElement('canvas');
+    finalCanvas.width = width;
+    finalCanvas.height = height + footerHeight;
+    const fctx = finalCanvas.getContext('2d');
+    if (!fctx) throw new Error('Canvas not supported');
+    fctx.drawImage(canvas, 0, 0);
+    fctx.fillStyle = '#ffffff';
+    fctx.fillRect(0, height, width, footerHeight);
+    fctx.font = '500 16px Inter, Arial, sans-serif';
+    fctx.textAlign = 'left';
+    fctx.textBaseline = 'middle';
+    fctx.fillStyle = '#111827'; // neutral-900
+    const name = palette.name || 'palette';
+    fctx.fillText(name, 12, height + footerHeight / 2);
+
+    const dataUrl = finalCanvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `${palette.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_palette.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (e) {
+    console.error('Failed to export PNG palette', e);
+  }
 }

@@ -6,6 +6,10 @@ export interface User {
   email: string
   name?: string
   avatarUrl?: string
+  _count?: {
+    followers: number
+    following: number
+  }
 }
 
 interface AuthState {
@@ -25,8 +29,17 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       
       login: (user: User, token: string) => {
+        // Ensure backward compatibility for users without _count
+        const userWithDefaults = {
+          ...user,
+          _count: user._count || {
+            followers: 0,
+            following: 0
+          }
+        }
+        
         set({
-          user,
+          user: userWithDefaults,
           token,
           isAuthenticated: true,
         })
@@ -57,6 +70,18 @@ export const useAuthStore = create<AuthState>()(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      version: 1,
+      migrate: (persistedState: unknown, version: number) => {
+        const state = persistedState as AuthState
+        // Migration for adding _count to existing users
+        if (version === 0 && state.user && !state.user._count) {
+          state.user._count = {
+            followers: 0,
+            following: 0
+          }
+        }
+        return state
+      },
     }
   )
 )

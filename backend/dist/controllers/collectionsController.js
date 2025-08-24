@@ -33,7 +33,6 @@ const createCollection = async (req, res) => {
                                 id: true,
                                 name: true,
                                 colors: true,
-                                description: true,
                                 createdAt: true
                             }
                         }
@@ -73,7 +72,6 @@ const getUserCollections = async (req, res) => {
                                 id: true,
                                 name: true,
                                 colors: true,
-                                description: true,
                                 createdAt: true
                             }
                         }

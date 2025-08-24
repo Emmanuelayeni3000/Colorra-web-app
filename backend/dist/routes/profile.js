@@ -8,7 +8,9 @@ const auth_1 = require("../middleware/auth");
 const upload_1 = require("../middleware/upload");
 const profileController_1 = require("../controllers/profileController");
 const router = express_1.default.Router();
-// All profile routes require authentication
+// GET /api/profile/:userId - Get user profile by ID (public route)
+router.get('/:userId', profileController_1.getProfileById);
+// All other profile routes require authentication
 router.use(auth_1.authenticateToken);
 // GET /api/profile - Get user profile
 router.get('/', profileController_1.getProfile);

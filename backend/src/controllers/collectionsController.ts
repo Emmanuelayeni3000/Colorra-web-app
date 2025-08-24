@@ -37,7 +37,6 @@ export const createCollection = async (req: AuthRequest, res: Response) => {
                 id: true,
                 name: true,
                 colors: true,
-                description: true,
                 createdAt: true
               }
             }
@@ -80,7 +79,6 @@ export const getUserCollections = async (req: AuthRequest, res: Response) => {
                 id: true,
                 name: true,
                 colors: true,
-                description: true,
                 createdAt: true
               }
             }

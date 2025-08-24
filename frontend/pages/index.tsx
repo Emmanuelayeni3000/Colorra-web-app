@@ -1,12 +1,41 @@
 import React from 'react'
 import Link from 'next/link'
-import { motion, easeOut, easeInOut } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
+import { motion, easeOut } from 'framer-motion'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Palette, Sparkles, Heart, Download, Users, Star, Workflow, ArrowRight, Zap, Brush, Share2 } from 'lucide-react'
+import { Palette as PaletteIcon, Sparkles, Heart, Download, Users, Star, ArrowRight, Zap, Brush, Share2 } from 'lucide-react'
+import { GetServerSideProps } from 'next'
+import { apiClient } from '@/lib/api'
+import PublicPaletteCard from '@/components/palette/PublicPaletteCard'
 
-export default function HomePage() {
+import { Palette } from '@/store/paletteStore'
+
+interface HomePageProps {
+  publicPalettes: Palette[];
+}
+
+export const getServerSideProps: GetServerSideProps<HomePageProps> = async () => {
+  try {
+    const publicPalettes = await apiClient.getPublicPalettes();
+    // Take only the first 6 for display on the homepage
+    const limitedPalettes = publicPalettes.slice(0, 6);
+    return {
+      props: {
+        publicPalettes: limitedPalettes,
+      },
+    };
+  } catch (error) {
+    console.error('Failed to fetch public palettes for homepage:', error);
+    return {
+      props: {
+        publicPalettes: [],
+      },
+    };
+  }
+};
+
+export default function HomePage({ publicPalettes }: HomePageProps) {
   // Animation variants
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
@@ -55,18 +84,11 @@ export default function HomePage() {
     }
   }
 
-  // Hook for scroll-triggered animations
-  const useScrollAnimation = () => {
-    const [ref, inView] = useInView({
-      threshold: 0.1,
-      triggerOnce: true
-    })
-    return [ref, inView]
-  }
+  
 
   const features = [
     {
-      icon: <Palette className="h-8 w-8 text-primary" />,
+      icon: <PaletteIcon className="h-8 w-8 text-primary" />,
       title: "Create Palettes",
       description: "Generate beautiful color palettes with our intuitive color picker tools.",
       color: "from-purple-500 to-pink-500"
@@ -146,7 +168,7 @@ export default function HomePage() {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
-              <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+              <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
             </motion.div>
             <div className="flex items-center space-x-4">
               <Link href="/signin">
@@ -431,7 +453,7 @@ export default function HomePage() {
                   <motion.div 
                     className="absolute inset-2 bg-gradient-to-br from-[#8b5cf6]/5 to-[#14b8a6]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"
                     initial={{ scale: 0.8 }}
-                    whileHover={{ scale: 1.0 }}
+                    whileInView={{ scale: 1.0 }}
                     transition={{ duration: 0.3 }}
                   />
                   <CardContent className="relative z-10 p-2">
@@ -452,7 +474,7 @@ export default function HomePage() {
                         </motion.div>
                       ))}
                     </motion.div>
-                    <p className="text-neutral-600 mb-4 italic">"{testimonial.quote}"</p>
+                    <p className="text-neutral-600 mb-4 italic">&quot;{testimonial.quote}&quot;</p>
                     <p className="text-neutral-900 font-semibold">{testimonial.author}</p>
                   </CardContent>
                 </Card>
@@ -536,7 +558,7 @@ export default function HomePage() {
                   <motion.div 
                     className="absolute inset-2 bg-gradient-to-br from-white/40 via-white/20 to-white/10 opacity-0 group-hover:opacity-100 rounded-lg"
                     initial={{ scale: 0.98, rotate: 0 }}
-                    whileHover={{ scale: 1.0, rotate: 0.5 }}
+                    whileInView={{ scale: 1.0 }}
                     transition={{ duration: 0.3 }}
                   />
                   
@@ -633,16 +655,33 @@ export default function HomePage() {
               variants={fadeInUp}
               className="text-4xl font-bold text-neutral-900 mb-6"
             >
-              Join Our Creative Community
+              Explore Community Palettes
             </motion.h2>
             <motion.p 
               variants={fadeInUp}
               className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto"
             >
-              Connect with thousands of designers, share your palettes, and get inspired by others' creations.
+              Discover stunning color palettes shared by our creative community.
             </motion.p>
+
+            {publicPalettes.length > 0 ? (
+              <motion.div
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.1 }}
+                variants={staggerContainer}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10"
+              >
+                {publicPalettes.map((palette) => (
+                  <PublicPaletteCard key={palette.id} palette={palette} readonly={true} />
+                ))}
+              </motion.div>
+            ) : (
+              <p className="text-neutral-600 mb-10">No public palettes to display yet. Be the first to share!</p>
+            )}
+
             <motion.div variants={fadeInUp}>
-              <Link href="/signup">
+              <Link href="/explore" passHref>
                 <motion.div
                   whileHover={{ 
                     scale: 1.05, 
@@ -655,13 +694,13 @@ export default function HomePage() {
                     <motion.div 
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
                     />
-                    <span className="relative z-10">Join Now</span>
+                    <span className="relative z-10">Explore All Public Palettes</span>
                     <motion.div
                       className="relative z-10"
                       animate={{ rotate: [0, 360] }}
                       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                     >
-                      <Users className="ml-2 h-5 w-5" />
+                      <ArrowRight className="ml-2 h-5 w-5" />
                     </motion.div>
                   </Button>
                 </motion.div>
@@ -800,7 +839,7 @@ export default function HomePage() {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+            <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
           </motion.div>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}

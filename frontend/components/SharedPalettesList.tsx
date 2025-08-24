@@ -1,41 +1,57 @@
-import React, { useEffect, useState } from 'react'
-import { Card } from './ui/card'
-import { Spinner } from './ui/spinner'
-import { toast } from './ui/toast'
+import React, { useEffect, useState } from 'react';
+import { apiClient } from '@/lib/api';
+import { Palette } from '@/store/paletteStore';
+import PaletteCard from '@/components/palette/PaletteCard';
+import { toast } from 'sonner';
+import { Spinner } from './ui/spinner';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 export const SharedPalettesList: React.FC = () => {
-  const [palettes, setPalettes] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [palettes, setPalettes] = useState<Palette[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/shared-palettes')
-      .then(res => res.json())
-      .then(data => {
-        setPalettes(data.data?.palettes || [])
-        setLoading(false)
-      })
-      .catch(() => {
-        toast.error('Failed to load shared palettes')
-        setLoading(false)
-      })
-  }, [])
+    const fetchSharedPalettes = async () => {
+      try {
+        setLoading(true);
+        const data = await apiClient.getSharedPalettes();
+        setPalettes(data.map((item: any) => ({
+          ...item.palette,
+          isFavorite: item.palette.bookmarks?.some((b: any) => b.userId === item.userId) || false,
+        })));
+      } catch (err) {
+        console.error('Error fetching shared palettes:', err);
+        toast.error('Failed to load shared palettes.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (loading) return <Spinner />
+    fetchSharedPalettes();
+  }, []);
+
+  if (loading) return <Spinner />;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {palettes.length === 0 ? (
-        <div>No palettes shared with you yet.</div>
+        <Card className="text-center py-12 col-span-full">
+          <CardHeader>
+            <CardTitle className="text-neutral-600">
+              No palettes shared with you yet
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-neutral-500 mb-4">
+              When another user shares a palette with you, it will appear here.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
-        palettes.map((p: any) => (
-          <Card key={p.id}>
-            <div className="font-bold">{p.palette.name}</div>
-            <div className="text-xs text-gray-500">Shared by: {p.sharedBy.name} ({p.sharedBy.email})</div>
-            <div className="mt-2">Colors: {JSON.parse(p.palette.colors).join(', ')}</div>
-            {p.message && <div className="mt-2 italic">Message: {p.message}</div>}
-          </Card>
+        palettes.map((palette) => (
+          <PaletteCard key={palette.id} palette={palette} isReadOnly={true} />
         ))
       )}
     </div>
-  )
-}
+  );
+};

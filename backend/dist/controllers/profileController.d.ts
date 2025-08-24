@@ -6,4 +6,5 @@ export declare const changePassword: (req: AuthRequest, res: Response) => Promis
 export declare const updateProfileValidation: import("express-validator").ValidationChain[];
 export declare const changePasswordValidation: import("express-validator").ValidationChain[];
 export declare const uploadAvatar: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
+export declare const getProfileById: (req: AuthRequest, res: Response) => Promise<Response<any, Record<string, any>> | undefined>;
 //# sourceMappingURL=profileController.d.ts.map

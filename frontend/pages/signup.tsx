@@ -4,9 +4,11 @@ import { useRouter } from 'next/router'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Palette, Eye, EyeOff } from 'lucide-react'
+import Image from 'next/image'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { apiClient } from '@/lib/api'
+import { AxiosError } from 'axios'
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -55,9 +57,19 @@ export default function SignUpPage() {
       })
       
       login(data.user, data.token)
-      router.push('/dashboard')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create account')
+
+      const { redirect } = router.query;
+      if (redirect && typeof redirect === 'string') {
+        router.push(redirect);
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (err: unknown) {
+      if (err instanceof AxiosError) {
+        setError(err.response?.data?.message || 'Failed to create account');
+      } else {
+        setError('Failed to create account');
+      }
     } finally {
       setIsLoading(false)
     }
@@ -69,7 +81,7 @@ export default function SignUpPage() {
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="flex items-center justify-center space-x-2">
-            <img src="/images/colorra-logo.png" alt="Colorra Logo" className="h-20 w-25" />
+            <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
           </Link>
           <h2 className="text-2xl font-bold text-neutral-900">Create your account</h2>
           <p className="mt-2 text-neutral-600">
