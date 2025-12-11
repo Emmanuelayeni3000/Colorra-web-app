@@ -1,6 +1,32 @@
 node_modules/
 **/node_modules/
 
+# Environment files - NEVER commit these
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+**/.env
+**/.env.local
+**/.env.development
+**/.env.production
+
+# Build outputs
+dist/
+build/
+.next/
+**/.next/
+out/
+
+# Backend build
+backend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
 # Documentation files to hide
 IMPLEMENTATION_SUMMARY.md
 start.md
