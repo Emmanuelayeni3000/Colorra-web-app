@@ -27,7 +27,8 @@ export default function ForgotPasswordForm({ onBackToLogin }: ForgotPasswordForm
     setIsLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/password-reset/request', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+      const response = await fetch(`${apiUrl}/password-reset/request`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

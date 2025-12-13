@@ -162,7 +162,8 @@ export default function SharePaletteModal({
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/sharing/share', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+      const response = await fetch(`${apiUrl}/sharing/share`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

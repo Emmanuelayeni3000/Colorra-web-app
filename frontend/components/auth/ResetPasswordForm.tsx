@@ -35,7 +35,8 @@ export default function ResetPasswordForm({ token, onSuccess, onBackToLogin }: R
     setIsLoading(true)
 
     try {
-      const response = await fetch('http://localhost:5000/api/password-reset/reset', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+      const response = await fetch(`${apiUrl}/password-reset/reset`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -52,7 +52,8 @@ export default function ImageUpload({ onColorsExtracted, onError }: ImageUploadP
       formData.append('image', file)
 
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/upload/image', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+      const response = await fetch(`${apiUrl}/upload/image`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
