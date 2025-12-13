@@ -35,4 +35,16 @@ router.get('/me', authenticateToken, async (req: AuthRequest, res: Response, nex
   }
 });
 
+// Delete an activity (only the owner can delete)
+router.delete('/:activityId', authenticateToken, async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { activityId } = req.params;
+    const userId = req.user!.id;
+    const result = await activityController.deleteActivity(activityId, userId);
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

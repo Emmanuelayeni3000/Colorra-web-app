@@ -149,3 +149,26 @@ export const getPersonalizedFeed = async (userId: string, limit: number = 20, of
 
   return parsedActivities;
 };
+
+export const deleteActivity = async (activityId: string, userId: string) => {
+  // Find the activity first
+  const activity = await prisma.activity.findUnique({
+    where: { id: activityId },
+  });
+
+  if (!activity) {
+    throw createError('Activity not found', 404);
+  }
+
+  // Only allow the user who created the activity to delete it
+  if (activity.userId !== userId) {
+    throw createError('Unauthorized to delete this activity', 403);
+  }
+
+  // Delete the activity
+  await prisma.activity.delete({
+    where: { id: activityId },
+  });
+
+  return { message: 'Activity deleted successfully' };
+};

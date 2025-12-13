@@ -10,6 +10,7 @@ export interface Palette {
   isFavorite: boolean
   isPublic: boolean
   isBookmarked?: boolean
+  bookmarkCount?: number
   category?: string; // Added category property
   createdAt: string
   updatedAt: string
@@ -29,7 +30,7 @@ interface PaletteState {
   isCreating: boolean
   isUpdating: boolean // Added
   error: string | null
-  
+
   // Actions
   setPalettes: (palettes: Palette[]) => void
   setPublicPalettes: (palettes: Palette[]) => void
@@ -56,7 +57,7 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
   isCreating: false,
   isUpdating: false, // Added
   error: null,
-  
+
   setPalettes: (palettes: Palette[]) => {
     set({ palettes, error: null })
   },
@@ -68,14 +69,14 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
   setBookmarkedPalettes: (palettes: Palette[]) => {
     set({ bookmarkedPalettes: palettes, error: null })
   },
-  
+
   addPalette: (palette: Palette) => {
     set((state) => ({
       palettes: [palette, ...state.palettes],
       error: null,
     }))
   },
-  
+
   updatePalette: (id: string, updates: Partial<Palette>) => {
     set((state) => {
       const updatedPalettes = state.palettes.map((palette) =>
@@ -91,9 +92,9 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
         const target = updatedPalettes.find(p => p.id === id);
         if (isPublic) {
           const already = updatedPublicPalettes.some(p => p.id === id);
-            if (!already && target) {
-              updatedPublicPalettes = [target, ...updatedPublicPalettes];
-            }
+          if (!already && target) {
+            updatedPublicPalettes = [target, ...updatedPublicPalettes];
+          }
         } else if (isPublic === false) {
           updatedPublicPalettes = updatedPublicPalettes.filter(p => p.id !== id);
         }
@@ -113,7 +114,7 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
         updatedBookmarkedPalettes = state.bookmarkedPalettes.filter(p => p.id !== id);
       } else if (existingBookmarkedPalette) {
         // If already bookmarked, just update its properties
-        updatedBookmarkedPalettes = state.bookmarkedPalettes.map(p => 
+        updatedBookmarkedPalettes = state.bookmarkedPalettes.map(p =>
           p.id === id ? { ...p, ...updates } : p
         );
       }
@@ -130,7 +131,7 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
       };
     });
   },
-  
+
   deletePalette: (id: string) => {
     set((state) => ({
       palettes: state.palettes.filter((palette) => palette.id !== id),
@@ -141,11 +142,11 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
       error: null,
     }))
   },
-  
+
   setCurrentPalette: (palette: Palette | null) => {
     set({ currentPalette: palette })
   },
-  
+
   toggleFavorite: (id: string) => {
     set((state) => ({
       palettes: state.palettes.map((palette) =>
@@ -169,11 +170,11 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
           : state.currentPalette,
     }))
   },
-  
+
   setLoading: (loading: boolean) => {
     set({ isLoading: loading })
   },
-  
+
   setCreating: (creating: boolean) => {
     set({ isCreating: creating })
   },
@@ -181,15 +182,15 @@ export const usePaletteStore = create<PaletteState>((set, get) => ({
   setUpdating: (updating: boolean) => { // Added
     set({ isUpdating: updating })
   },
-  
+
   setError: (error: string | null) => {
     set({ error })
   },
-  
+
   getFavorites: () => {
     return get().palettes.filter((palette) => palette.isFavorite)
   },
-  
+
   clearPalettes: () => {
     set({ palettes: [], publicPalettes: [], bookmarkedPalettes: [], currentPalette: null, error: null })
   },

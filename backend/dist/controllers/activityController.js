@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPersonalizedFeed = exports.getGlobalFeed = exports.createActivity = void 0;
+exports.deleteActivity = exports.getPersonalizedFeed = exports.getGlobalFeed = exports.createActivity = void 0;
 const activityService = __importStar(require("../services/activityService"));
 const createActivity = async (type, userId, relatedIds) => {
     return activityService.createActivity(type, userId, relatedIds);
@@ -47,4 +47,8 @@ const getPersonalizedFeed = async (userId, limit, offset) => {
     return activityService.getPersonalizedFeed(userId, limit, offset);
 };
 exports.getPersonalizedFeed = getPersonalizedFeed;
+const deleteActivity = async (activityId, userId) => {
+    return activityService.deleteActivity(activityId, userId);
+};
+exports.deleteActivity = deleteActivity;
 //# sourceMappingURL=activityController.js.map

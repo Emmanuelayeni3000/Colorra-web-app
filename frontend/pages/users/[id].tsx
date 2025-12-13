@@ -26,7 +26,7 @@ interface UserProfile {
 export default function UserProfilePage() {
   const router = useRouter();
   const { id } = router.query;
-  const { isAuthenticated, user: currentUser } = useAuthStore();
+  const { isAuthenticated, user: currentUser, hasHydrated } = useAuthStore();
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [palettes, setPalettes] = useState<Palette[]>([]);
@@ -36,7 +36,8 @@ export default function UserProfilePage() {
   const [activeTab, setActiveTab] = useState('palettes');
 
   const fetchUserProfile = useCallback(async () => {
-    if (!id) return;
+    // Wait for hydration before checking auth status
+    if (!id || !hasHydrated) return;
     setIsLoading(true);
     try {
       const [userProfile, userPalettes] = await Promise.all([
@@ -59,7 +60,7 @@ export default function UserProfilePage() {
     } finally {
       setIsLoading(false);
     }
-  }, [id, isAuthenticated, currentUser]);
+  }, [id, hasHydrated, isAuthenticated, currentUser]);
 
   useEffect(() => {
     fetchUserProfile();

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { X, Plus, Upload, Wand2, Palette as PaletteIcon } from 'lucide-react'
+import { X, Plus, Upload, Wand2, Palette as PaletteIcon, Sparkles } from 'lucide-react'
 import { ChromePicker } from 'react-color'
 import { usePaletteActions } from '@/hooks/usePaletteActions'
 import { usePaletteStore } from '@/store/paletteStore'
@@ -10,6 +10,8 @@ import { extractColorsFromImage, validateImageFile, generateComplementaryColors 
 import { cn } from '@/lib/utils'
 import toast from 'react-hot-toast'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 interface CreatePaletteModalProps {
   isOpen: boolean
@@ -80,7 +82,6 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
       toast.error((error as Error).message)
     } finally {
       setIsExtracting(false)
-      // Reset file input
       event.target.value = ''
     }
   }
@@ -98,7 +99,6 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
         category,
       })
 
-      // Reset form
       setName('')
       setDescription('')
       setColors(['#7F56D9'])
@@ -117,93 +117,101 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <Card className="border-0 shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-2xl font-bold text-neutral-900">
-              Create New Palette
-            </CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}
-            className='hover:bg-[#14b8a6] hover:text-white'
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-scale-in">
+      <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20">
+        <Card className="border-0 shadow-none bg-transparent">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-neutral-100">
+            <div>
+              <div className="flex items-center space-x-2">
+                <CardTitle className="text-2xl font-bold text-neutral-900">
+                  Create New Palette
+                </CardTitle>
+                <Sparkles className="h-5 w-5 text-purple-500" />
+              </div>
+              <p className="text-sm text-neutral-500 mt-1">Design your perfect color combination</p>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose}
+              className="hover:bg-neutral-100 rounded-xl transition-smooth"
             >
-              <X className="h-6 w-6 text" />
+              <X className="h-5 w-5" />
             </Button>
           </CardHeader>
           
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Palette Name */}
               <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-neutral-700">
+                <Label htmlFor="name" className="text-neutral-700">
                   Palette Name *
-                </label>
+                </Label>
                 <Input
                   id="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter palette name"
                   required
+                  className="h-11 rounded-xl border-neutral-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 transition-smooth"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <label htmlFor="description" className="text-sm font-medium text-neutral-700">
+                <Label htmlFor="description" className="text-neutral-700">
                   Description
-                </label>
+                </Label>
                 <Input
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Optional description"
+                  className="h-11 rounded-xl border-neutral-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 transition-smooth"
                 />
               </div>
 
               {/* Category */}
               <div className="space-y-2">
-                <label htmlFor="category" className="text-sm font-medium text-neutral-700">
+                <Label htmlFor="category" className="text-neutral-700">
                   Category
-                </label>
+                </Label>
                 <Select onValueChange={setCategory} value={category}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full h-11 rounded-xl border-neutral-200">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl">
                     {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      <SelectItem key={cat} value={cat} className="rounded-lg">{cat}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Make Public */}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+              {/* Make Public - Using Switch component */}
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50/50 to-teal-50/50 rounded-xl border border-purple-100/50">
+                <div className="space-y-0.5">
+                  <Label htmlFor="isPublicCreate" className="text-neutral-700">
+                    Make Public
+                  </Label>
+                  <p className="text-xs text-neutral-500">Share this palette with the community</p>
+                </div>
+                <Switch
                   id="isPublicCreate"
                   checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
+                  onCheckedChange={setIsPublic}
                 />
-                <label
-                  htmlFor="isPublicCreate"
-                  className="text-sm font-medium text-neutral-700"
-                >
-                  Make this palette public
-                </label>
               </div>
 
               {/* Color Generation Options */}
               <div className="space-y-3">
-                <label className="text-sm font-medium text-neutral-700">
-                  Generate Colors
-                </label>
+                <Label className="text-neutral-700">Generate Colors</Label>
                 <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={generateRandomColors}
-                    className="flex items-center hover:bg-[#14b8a6] hover:text-white"
+                    className="flex items-center rounded-xl border-purple-200 text-purple-600 hover:bg-purple-50 hover:border-purple-300 transition-smooth"
                     disabled={isExtracting}
                   >
                     <Wand2 className="h-4 w-4 mr-2" />
@@ -214,7 +222,7 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
                     <Button
                       type="button"
                       variant="outline"
-                      className="flex items-center hover:bg-[#14b8a6] hover:text-white"
+                      className="flex items-center rounded-xl border-teal-200 text-teal-600 hover:bg-teal-50 hover:border-teal-300 transition-smooth"
                       onClick={() => document.getElementById('image-upload')?.click()}
                       disabled={isExtracting}
                     >
@@ -235,16 +243,14 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
               {/* Color Swatches */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-neutral-700">
-                    Colors ({colors.length}/10)
-                  </label>
+                  <Label className="text-neutral-700">Colors ({colors.length}/10)</Label>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={addColor}
                     disabled={colors.length >= 10}
-                    className="bg-primary text-white hover:bg-[#14b8a6] hover:text-white"
+                    className="btn-gradient text-white border-0 rounded-xl shadow-sm"
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     Add Color
@@ -256,10 +262,10 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
                     <div key={index} className="space-y-2">
                       <div
                         className={cn(
-                          "w-full h-20 rounded-lg cursor-pointer border-4 transition-all",
+                          "w-full h-20 rounded-xl cursor-pointer transition-all duration-200",
                           activeColorIndex === index
-                            ? "border-primary shadow-lg"
-                            : "border-gray-200 hover:border-gray-300"
+                            ? "ring-4 ring-purple-500/30 shadow-lg scale-105"
+                            : "ring-2 ring-neutral-200 hover:ring-neutral-300 hover:shadow-md"
                         )}
                         style={{ backgroundColor: color }}
                         onClick={() => {
@@ -268,7 +274,7 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
                         }}
                       />
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono text-neutral-600">
+                        <span className="text-xs font-mono text-neutral-500">
                           {color}
                         </span>
                         {colors.length > 1 && (
@@ -277,7 +283,7 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
                             variant="ghost"
                             size="sm"
                             onClick={() => removeColor(index)}
-                            className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500"
+                            className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-smooth"
                           >
                             <X className="h-3 w-3" />
                           </Button>
@@ -290,21 +296,20 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
 
               {/* Color Picker */}
               {showColorPicker && (
-                <div className="space-y-3">
+                <div className="space-y-3 animate-scale-in">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-neutral-700">
-                      Color Picker
-                    </label>
+                    <Label className="text-neutral-700">Color Picker</Label>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => setShowColorPicker(false)}
+                      className="rounded-xl transition-smooth"
                     >
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="flex justify-center bg-white p-4 rounded-lg border">
+                  <div className="flex justify-center bg-neutral-50 p-4 rounded-xl border border-neutral-100">
                     <ChromePicker
                       color={colors[activeColorIndex]}
                       onChange={handleColorChange}
@@ -315,25 +320,28 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
               )}
 
               {/* Form Actions */}
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={onClose}
-                className='hover:bg-[#14b8a6] hover:text-white'
+              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-neutral-100">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={onClose}
+                  className="rounded-xl border-neutral-200 hover:bg-neutral-50 transition-smooth"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={!name.trim() || colors.length === 0 || isCreating}
-                  className="bg-primary text-white hover:bg-primary-600"
+                  className="btn-gradient-teal text-white rounded-xl shadow-lg shadow-teal-500/20"
                 >
                   {isCreating ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white mr-2"></div>
                       Creating...
                     </>
                   ) : (
                     <>
-                      <PaletteIcon className="h-4 w-4 mr-2 text-white" />
+                      <PaletteIcon className="h-4 w-4 mr-2" />
                       Create Palette
                     </>
                   )}

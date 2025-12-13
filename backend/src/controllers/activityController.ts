@@ -15,3 +15,7 @@ export const getGlobalFeed = async (limit?: number, offset?: number) => {
 export const getPersonalizedFeed = async (userId: string, limit?: number, offset?: number) => {
   return activityService.getPersonalizedFeed(userId, limit, offset);
 };
+
+export const deleteActivity = async (activityId: string, userId: string) => {
+  return activityService.deleteActivity(activityId, userId);
+};

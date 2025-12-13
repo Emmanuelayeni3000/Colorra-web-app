@@ -20,7 +20,7 @@ import { apiClient } from '@/lib/api';
 import { Palette } from '@/store/paletteStore';
 import { getContrastingTextColor, cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { exportPaletteAsJSON, exportPaletteAsCSS, exportPaletteAsSCSS, copyPaletteToClipboard } from '@/lib/paletteExport';
+import { exportPaletteAsJSON, exportPaletteAsCSS, exportPaletteAsSCSS, exportPaletteAsSVG, copyPaletteToClipboard } from '@/lib/paletteExport';
 import { format } from 'date-fns';
 import CommentsSection from '@/components/palette/CommentsSection';
 import colorBlind from 'color-blind';
@@ -36,6 +36,15 @@ export default function PaletteDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedBlindnessType, setSelectedBlindnessType] = useState<string>('normal');
+
+  // Smart back navigation - falls back to /explore if no history
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/explore');
+    }
+  };
 
   const colorBlindnessTypes = [
     { value: 'normal', label: 'Normal Vision' },
@@ -99,7 +108,7 @@ export default function PaletteDetailPage() {
     }
   };
 
-  const handleExport = (format: 'json' | 'css' | 'scss') => {
+  const handleExport = (format: 'json' | 'css' | 'scss' | 'svg') => {
     if (!palette) return;
     
     try {
@@ -115,6 +124,10 @@ export default function PaletteDetailPage() {
         case 'scss':
           exportPaletteAsSCSS(palette);
           toast.success('Palette exported as SCSS!');
+          break;
+        case 'svg':
+          exportPaletteAsSVG(palette);
+          toast.success('Palette exported as SVG!');
           break;
       }
     } catch {
@@ -188,7 +201,7 @@ export default function PaletteDetailPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center text-red-500">
         <p>{error}</p>
-        <Button onClick={() => router.back()} className="mt-4">
+        <Button onClick={handleGoBack} className="mt-4">
           <ArrowLeft className="mr-2 h-4 w-4" /> Back
         </Button>
       </div>
@@ -200,7 +213,7 @@ export default function PaletteDetailPage() {
                   <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Error loading palette</h1>
-          <Button variant="ghost" onClick={() => router.back()} className="hover:text-white">
+          <Button variant="ghost" onClick={handleGoBack} className="hover:text-white hover:bg-teal-500">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
         </div>
@@ -239,8 +252,8 @@ export default function PaletteDetailPage() {
           <div className="flex items-center justify-between h-16">
             <Button
               variant="ghost"
-              onClick={() => router.back()}
-              className="flex items-center gap-2 hover:text-white"
+              onClick={handleGoBack}
+              className="flex items-center gap-2 hover:text-white hover:bg-teal-500"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -469,6 +482,15 @@ export default function PaletteDetailPage() {
                     >
                       <Download className="h-4 w-4 mr-2" />
                       SCSS
+                    </Button>
+                    <Button 
+                      onClick={() => handleExport('svg')} 
+                      variant="ghost" 
+                      size="sm"
+                      className="w-full justify-start"
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      SVG
                     </Button>
                   </div>
                 </div>

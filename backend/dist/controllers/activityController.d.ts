@@ -123,4 +123,7 @@ export declare const getPersonalizedFeed: (userId: string, limit?: number, offse
     targetUserId: string | null;
     createdAt: Date;
 })[]>;
+export declare const deleteActivity: (activityId: string, userId: string) => Promise<{
+    message: string;
+}>;
 //# sourceMappingURL=activityController.d.ts.map

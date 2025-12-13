@@ -126,7 +126,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ paletteId }) => {
             rows={3}
             className="mb-2"
           />
-          <Button onClick={handleAddComment} disabled={!newCommentContent.trim()}>
+          <Button className='text-white' onClick={handleAddComment} disabled={!newCommentContent.trim()}>
             Post Comment
           </Button>
         </div>

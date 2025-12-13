@@ -1,5 +1,4 @@
 import { Palette } from '@/store/paletteStore'
-import { getContrastingTextColor } from '@/lib/utils'
 
 export const exportPaletteAsJSON = (palette: Palette) => {
   const exportData = {
@@ -10,17 +9,17 @@ export const exportPaletteAsJSON = (palette: Palette) => {
     exportedAt: new Date().toISOString(),
     exportedBy: 'Colorra Web App'
   }
-  
+
   const dataStr = JSON.stringify(exportData, null, 2)
   const dataBlob = new Blob([dataStr], { type: 'application/json' })
-  
+
   const link = document.createElement('a')
   link.href = URL.createObjectURL(dataBlob)
   link.download = `${palette.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_palette.json`
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  
+
   URL.revokeObjectURL(link.href)
 }
 
@@ -46,16 +45,16 @@ ${palette.colors.map((color, index) => `.color-${index + 1} {
   border-color: ${color};
 }`).join('\n\n')}
 `
-  
+
   const dataBlob = new Blob([cssContent], { type: 'text/css' })
-  
+
   const link = document.createElement('a')
   link.href = URL.createObjectURL(dataBlob)
   link.download = `${palette.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_palette.css`
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  
+
   URL.revokeObjectURL(link.href)
 }
 
@@ -84,22 +83,22 @@ ${palette.colors.map((color, index) => `  "color-${index + 1}": ${color},`).join
   border-color: map-get($palette-colors, $name);
 }
 `
-  
+
   const dataBlob = new Blob([scssContent], { type: 'text/scss' })
-  
+
   const link = document.createElement('a')
   link.href = URL.createObjectURL(dataBlob)
   link.download = `${palette.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_palette.scss`
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  
+
   URL.revokeObjectURL(link.href)
 }
 
 export const copyPaletteToClipboard = async (palette: Palette, format: 'hex' | 'rgb' | 'hsl' = 'hex') => {
   let colorsText = ''
-  
+
   switch (format) {
     case 'hex':
       colorsText = palette.colors.join(', ')
@@ -111,9 +110,9 @@ export const copyPaletteToClipboard = async (palette: Palette, format: 'hex' | '
       colorsText = palette.colors.map(hexToHsl).join(', ')
       break
   }
-  
+
   const text = `${palette.name}\n${colorsText}`
-  
+
   try {
     await navigator.clipboard.writeText(text)
     return true
@@ -127,32 +126,32 @@ export const copyPaletteToClipboard = async (palette: Palette, format: 'hex' | '
 function hexToRgb(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   if (!result) return hex
-  
+
   const r = parseInt(result[1], 16)
   const g = parseInt(result[2], 16)
   const b = parseInt(result[3], 16)
-  
+
   return `rgb(${r}, ${g}, ${b})`
 }
 
 function hexToHsl(hex: string): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   if (!result) return hex
-  
+
   const r = parseInt(result[1], 16) / 255
   const g = parseInt(result[2], 16) / 255
   const b = parseInt(result[3], 16) / 255
-  
+
   const max = Math.max(r, g, b)
   const min = Math.min(r, g, b)
   let h = 0
   let s = 0
   const l = (max + min) / 2
-  
+
   if (max !== min) {
     const d = max - min
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    
+
     switch (max) {
       case r:
         h = (g - b) / d + (g < b ? 6 : 0)
@@ -166,57 +165,91 @@ function hexToHsl(hex: string): string {
     }
     h /= 6
   }
-  
+
   return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`
 }
 
 export const exportPaletteAsPNG = (palette: Palette) => {
   try {
     const colors = palette.colors;
-    const blockWidth = 160; // width per color
-    const height = 160; // total image height
-    const width = blockWidth * colors.length;
+    const blockWidth = 140;
+    const blockHeight = 140;
+    const padding = 24;
+    const gap = 16;
+    const headerHeight = 60;
+    const footerHeight = 48;
+
+    const colorsWidth = (blockWidth * colors.length) + (gap * (colors.length - 1));
+    const width = colorsWidth + (padding * 2);
+    const height = headerHeight + blockHeight + footerHeight + (padding * 2);
+
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canvas not supported');
 
-    // Draw each color block
-    colors.forEach((color, idx) => {
-      const x = idx * blockWidth;
-      ctx.fillStyle = color;
-      ctx.fillRect(x, 0, blockWidth, height);
+    // Background with subtle gradient
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, '#faf5ff'); // violet-50
+    gradient.addColorStop(1, '#f0fdfa'); // teal-50
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
 
-      // Text label (hex)
-      ctx.font = '600 18px Inter, Arial, sans-serif';
+    // Header section
+    ctx.fillStyle = '#7c3aed'; // violet-600
+    ctx.font = 'bold 20px Inter, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('◆ Colorra', padding, headerHeight / 2 + 8);
+
+    // Palette name on the right
+    ctx.fillStyle = '#374151'; // gray-700
+    ctx.font = '600 16px Inter, Arial, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(palette.name || 'Palette', width - padding, headerHeight / 2 + 8);
+
+    // Draw color blocks with rounded corners
+    colors.forEach((color, idx) => {
+      const x = padding + (idx * (blockWidth + gap));
+      const y = headerHeight + padding;
+      const radius = 12;
+
+      // Rounded rectangle
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + blockWidth - radius, y);
+      ctx.quadraticCurveTo(x + blockWidth, y, x + blockWidth, y + radius);
+      ctx.lineTo(x + blockWidth, y + blockHeight - radius);
+      ctx.quadraticCurveTo(x + blockWidth, y + blockHeight, x + blockWidth - radius, y + blockHeight);
+      ctx.lineTo(x + radius, y + blockHeight);
+      ctx.quadraticCurveTo(x, y + blockHeight, x, y + blockHeight - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+
+      ctx.fillStyle = color;
+      ctx.fill();
+
+      // Hex code below each color
+      ctx.fillStyle = '#374151';
+      ctx.font = '500 13px Inter, Arial, sans-serif';
       ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillStyle = getContrastingTextColor(color);
-      ctx.fillText(color.toUpperCase(), x + blockWidth / 2, height / 2);
+      ctx.textBaseline = 'top';
+      ctx.fillText(color.toUpperCase(), x + blockWidth / 2, y + blockHeight + 8);
     });
 
-    // Footer strip with palette name
-    const footerHeight = 32;
-    const finalCanvas = document.createElement('canvas');
-    finalCanvas.width = width;
-    finalCanvas.height = height + footerHeight;
-    const fctx = finalCanvas.getContext('2d');
-    if (!fctx) throw new Error('Canvas not supported');
-    fctx.drawImage(canvas, 0, 0);
-    fctx.fillStyle = '#ffffff';
-    fctx.fillRect(0, height, width, footerHeight);
-    fctx.font = '500 16px Inter, Arial, sans-serif';
-    fctx.textAlign = 'left';
-    fctx.textBaseline = 'middle';
-    fctx.fillStyle = '#111827'; // neutral-900
-    const name = palette.name || 'palette';
-    fctx.fillText(name, 12, height + footerHeight / 2);
+    // Footer with branding
+    const footerY = height - footerHeight + 10;
+    ctx.fillStyle = '#9ca3af'; // gray-400
+    ctx.font = '400 12px Inter, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Created with Colorra • colorra.app', width / 2, footerY + 12);
 
-    const dataUrl = finalCanvas.toDataURL('image/png');
+    const dataUrl = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = `${palette.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_palette.png`;
+    link.download = `${palette.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_colorra.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -224,3 +257,106 @@ export const exportPaletteAsPNG = (palette: Palette) => {
     console.error('Failed to export PNG palette', e);
   }
 }
+
+export const exportPaletteAsSVG = (palette: Palette) => {
+  try {
+    const colors = palette.colors;
+    const blockWidth = 140;
+    const blockHeight = 140;
+    const padding = 24;
+    const gap = 16;
+    const headerHeight = 60;
+    const footerHeight = 48;
+
+    const colorsWidth = (blockWidth * colors.length) + (gap * (colors.length - 1));
+    const width = colorsWidth + (padding * 2);
+    const height = headerHeight + blockHeight + footerHeight + (padding * 2);
+
+    // Build SVG content with organized groups for design tool compatibility
+    let svgContent = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}" style="display:block;margin:auto;">
+  <title>${escapeXml(palette.name)} - Color Palette</title>
+  <desc>Generated by Colorra Web App</desc>
+  
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#faf5ff"/>
+      <stop offset="100%" stop-color="#f0fdfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="${width}" height="${height}" fill="url(#bgGradient)"/>
+  
+  <!-- =========================== -->
+  <!-- COLOR SWATCHES (Main Layer) -->
+  <!-- =========================== -->
+  <g id="colors" data-name="Color Swatches">
+`;
+
+    // Add color rectangles - the main usable content
+    colors.forEach((color, idx) => {
+      const x = padding + (idx * (blockWidth + gap));
+      const y = headerHeight + padding;
+
+      svgContent += `    <g id="color-${idx + 1}" data-color="${color}">
+      <rect x="${x}" y="${y}" width="${blockWidth}" height="${blockHeight}" rx="12" ry="12" fill="${color}"/>
+    </g>
+`;
+    });
+
+    svgContent += `  </g>
+  
+  <!-- ================================= -->
+  <!-- BRANDING (Separate locked layer) -->
+  <!-- Delete this group to remove branding -->
+  <!-- ================================= -->
+  <g id="colorra-branding" data-name="Colorra Branding" opacity="1">
+    <!-- Header -->
+    <text x="${padding}" y="${headerHeight / 2 + 8}" fill="#7c3aed" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="700">◆ Colorra</text>
+    <text x="${width - padding}" y="${headerHeight / 2 + 8}" fill="#374151" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" text-anchor="end">${escapeXml(palette.name)}</text>
+    
+    <!-- Color labels -->
+`;
+
+    // Add hex labels (part of branding layer - can be removed)
+    colors.forEach((color, idx) => {
+      const x = padding + (idx * (blockWidth + gap)) + (blockWidth / 2);
+      const y = headerHeight + padding + blockHeight + 20;
+
+      svgContent += `    <text x="${x}" y="${y}" fill="#374151" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="500" text-anchor="middle">${color.toUpperCase()}</text>
+`;
+    });
+
+    // Footer branding
+    const footerY = height - footerHeight + 22;
+    svgContent += `    
+    <!-- Footer -->
+    <text x="${width / 2}" y="${footerY}" fill="#9ca3af" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="400" text-anchor="middle">Created with Colorra • colorra.app</text>
+  </g>
+</svg>`;
+
+    // Create and download the file
+    const dataBlob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `${palette.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_colorra.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  } catch (e) {
+    console.error('Failed to export SVG palette', e);
+  }
+}
+
+// Helper to escape XML special characters
+function escapeXml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+

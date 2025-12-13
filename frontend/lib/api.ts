@@ -77,6 +77,24 @@ class ApiClient {
     }
   }
 
+  async verifyEmail(token: string) {
+    try {
+      const response = await this.client.get(`/auth/verify-email?token=${token}`)
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  }
+
+  async resendVerificationEmail(email: string) {
+    try {
+      const response = await this.client.post('/auth/resend-verification', { email })
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  }
+
   // Palette endpoints
   async getPalettes(favorites?: boolean, searchTerm?: string) {
     try {
@@ -101,6 +119,15 @@ class ApiClient {
         params.category = category;
       }
       const response = await this.client.get('/palettes/public', { params });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getExploreStats() {
+    try {
+      const response = await this.client.get('/palettes/stats');
       return response.data;
     } catch (error) {
       throw error;
@@ -342,8 +369,8 @@ class ApiClient {
 
   async sharePalette(paletteId: string, sharedWithId: string) {
     try {
-  // Sharing routes are mounted under /api/sharing
-  const response = await this.client.post(`/sharing/${paletteId}/share`, { sharedWithId });
+      // Sharing routes are mounted under /api/sharing
+      const response = await this.client.post(`/sharing/${paletteId}/share`, { sharedWithId });
       return response.data;
     } catch (error) {
       throw error;
@@ -352,8 +379,8 @@ class ApiClient {
 
   async getSharedPalettes() {
     try {
-  // Corrected path: mounted at /api/sharing
-  const response = await this.client.get('/sharing/shared-with-me');
+      // Corrected path: mounted at /api/sharing
+      const response = await this.client.get('/sharing/shared-with-me');
       return response.data;
     } catch (error) {
       throw error;
@@ -406,6 +433,15 @@ class ApiClient {
       if (limit !== undefined) params.limit = String(limit);
       if (offset !== undefined) params.offset = String(offset);
       const response = await this.client.get('/activity/me', { params });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteActivity(activityId: string) {
+    try {
+      const response = await this.client.delete(`/activity/${activityId}`);
       return response.data;
     } catch (error) {
       throw error;

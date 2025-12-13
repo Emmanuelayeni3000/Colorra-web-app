@@ -1,123 +1,149 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Search, LogOut, User, LayoutDashboard, ChevronDown, Activity } from 'lucide-react';
+import { Menu, Bell, Activity as ActivityIcon } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { usePaletteStore } from '@/store/paletteStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import ActivityFeed from '@/components/ActivityFeed'; // Import the new component
+import Sidebar from '@/components/layout/Sidebar';
+import ActivityFeed from '@/components/ActivityFeed';
 
 export default function ActivityPage() {
   const router = useRouter();
-  const { isAuthenticated, user, logout } = useAuthStore();
+  const { isAuthenticated, hasHydrated } = useAuthStore();
+  const { getFavorites } = usePaletteStore();
   const [feedType, setFeedType] = useState<'global' | 'personalized'>('global');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const favoriteCount = getFavorites().length;
+
+  // Wait for hydration before checking auth and redirecting
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (hasHydrated && !isAuthenticated) {
       router.push('/signin?redirect=/activity');
     }
-  }, [isAuthenticated, router]);
+  }, [hasHydrated, isAuthenticated, router]);
 
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
+  // Show loading while waiting for hydration
+  if (!hasHydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 via-purple-50/30 to-teal-50/30">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-200 border-t-purple-600"></div>
+            <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-purple-500"></div>
+          </div>
+          <p className="text-neutral-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-[#8b5cf6]/10 to-[#14b8a6]/10">
-      <header className="relative bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[150%] h-[200%] bg-gradient-to-r from-purple-500/10 via-teal-500/10 to-transparent -z-10 opacity-50 blur-3xl animate-pulse" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center space-x-2">
-              <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
-            </Link>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={user?.avatarUrl ? (
-                      user.avatarUrl.startsWith('http') 
-                        ? user.avatarUrl 
-                        : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${user.avatarUrl}?t=${Date.now()}`
-                    ) : ''}
-                    alt={user?.name || 'User'}
-                  />
-                  <AvatarFallback>{user?.name?.[0].toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 rounded-full p-0">
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user?.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user?.email}
-                        </p>
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-purple-50/30 to-teal-50/30">
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden transition-opacity"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <Sidebar 
+        isOpen={sidebarOpen} 
+        onClose={() => setSidebarOpen(false)}
+        favoriteCount={favoriteCount}
+      />
+
+      {/* Main Content */}
+      <div className="lg:pl-64">
+        {/* Top Navigation - Mobile Responsive */}
+        <header className="sticky top-0 z-30 glass-dark border-b border-white/20 shadow-glass px-3 py-3 sm:px-6 sm:py-4">
+          {/* Mobile Layout: Stacked */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            {/* Header Title Row */}
+            <div className="flex items-center justify-between sm:justify-start sm:space-x-4">
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden hover:bg-purple-50 rounded-xl transition-smooth h-9 w-9"
+                  onClick={() => setSidebarOpen(true)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-neutral-900">
+                      Activity
+                    </h1>
+                    <ActivityIcon className="h-4 w-4 sm:h-5 sm:w-5 text-purple-500" />
+                  </div>
+                  <p className="text-xs sm:text-sm text-neutral-500 hidden sm:block">
+                    See what&apos;s happening across Colorra
+                  </p>
+                </div>
+              </div>
+              
+              {/* Mobile-only feed toggle - shows on top right on mobile */}
+              <div className="sm:hidden">
+                <Select onValueChange={(value: 'global' | 'personalized') => setFeedType(value)} value={feedType}>
+                  <SelectTrigger className="w-[120px] h-9 bg-white/80 border-neutral-200/80 rounded-xl shadow-sm text-sm">
+                    <SelectValue placeholder="Feed" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value="global" className="rounded-lg text-sm">
+                      <div className="flex items-center space-x-2">
+                        <Bell className="h-3.5 w-3.5 text-purple-500" />
+                        <span>Global</span>
                       </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => router.push('/dashboard')}> 
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      <span>Dashboard</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => router.push('/profile')}> 
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </SelectItem>
+                    <SelectItem value="personalized" className="rounded-lg text-sm">
+                      <div className="flex items-center space-x-2">
+                        <ActivityIcon className="h-3.5 w-3.5 text-teal-500" />
+                        <span>My Feed</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
+            {/* Desktop Feed Type Selector */}
+            <div className="hidden sm:flex items-center">
+              <Select onValueChange={(value: 'global' | 'personalized') => setFeedType(value)} value={feedType}>
+                <SelectTrigger className="w-[160px] bg-white/80 border-neutral-200/80 rounded-xl shadow-sm">
+                  <SelectValue placeholder="Select Feed Type" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="global" className="rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Bell className="h-4 w-4 text-purple-500" />
+                      <span>Global Feed</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="personalized" className="rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <ActivityIcon className="h-4 w-4 text-teal-500" />
+                      <span>My Feed</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-neutral-900">Activity Feed</h1>
-          <p className="text-xl text-neutral-600 mt-2">See what's happening across Colorra.</p>
-        </div>
-
-        <div className="flex justify-center mb-8">
-          <Select onValueChange={(value: 'global' | 'personalized') => setFeedType(value)} value={feedType}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select Feed Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="global">Global Feed</SelectItem>
-              <SelectItem value="personalized">My Personalized Feed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <ActivityFeed feedType={feedType} />
-      </main>
+        {/* Content */}
+        <main className="p-3 sm:p-4 md:p-6 max-w-4xl mx-auto">
+          <ActivityFeed feedType={feedType} />
+        </main>
+      </div>
     </div>
   );
 }

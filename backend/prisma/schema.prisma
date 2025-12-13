@@ -6,20 +6,24 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id               String    @id @default(uuid())
-  email            String    @unique
-  password         String
-  name             String?
-  avatarUrl        String?
-  resetToken       String?
-  resetTokenExpiry DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                        String    @id @default(uuid())
+  email                     String    @unique
+  password                  String
+  name                      String?
+  avatarUrl                 String?
+  resetToken                String?
+  resetTokenExpiry          DateTime?
+  emailVerified             Boolean   @default(false)
+  verificationToken         String?
+  verificationTokenExpiry   DateTime?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
   
   palettes         Palette[]
   sharedPalettes   SharedPalette[] @relation("SharedBy")

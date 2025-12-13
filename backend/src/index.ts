@@ -20,8 +20,16 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 5000
 
+// CORS configuration for production
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}
+
 // Middleware
-app.use(cors())
+app.use(cors(corsOptions))
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -63,18 +71,18 @@ app.get('/api/health', (req, res) => {
 app.get('/api/test-uploads', (req, res) => {
   const uploadsPath = path.resolve(__dirname, '../uploads')
   const fs = require('fs')
-  
+
   try {
     const files = fs.readdirSync(uploadsPath)
-    res.json({ 
-      status: 'OK', 
+    res.json({
+      status: 'OK',
       uploadsPath,
       files,
       message: 'Upload directory accessible'
     })
   } catch (error) {
-    res.status(500).json({ 
-      status: 'ERROR', 
+    res.status(500).json({
+      status: 'ERROR',
       uploadsPath,
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'Upload directory not accessible'
@@ -87,25 +95,25 @@ app.get('/api/test-auth', (req, res) => {
   const jwt = require('jsonwebtoken')
   const authHeader = req.headers.authorization
   const token = authHeader && authHeader.split(' ')[1]
-  
+
   if (!token) {
-    return res.json({ 
+    return res.json({
       status: 'NO_TOKEN',
       message: 'No authorization header or token found',
-      authHeader 
+      authHeader
     })
   }
-  
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!)
-    res.json({ 
+    res.json({
       status: 'VALID_TOKEN',
       decoded,
       message: 'Token is valid',
       tokenStart: token.substring(0, 20)
     })
   } catch (error) {
-    res.json({ 
+    res.json({
       status: 'INVALID_TOKEN',
       error: error instanceof Error ? error.message : 'Unknown error',
       message: 'Token verification failed',

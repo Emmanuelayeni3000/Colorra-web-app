@@ -62,7 +62,14 @@ const getSharedPalettes = async (req, res) => {
                 sharedBy: { select: { id: true, name: true, avatarUrl: true } },
             },
         });
-        res.status(200).json(sharedPalettes);
+        const processedPalettes = sharedPalettes.map(sp => ({
+            ...sp,
+            palette: {
+                ...sp.palette,
+                colors: JSON.parse(sp.palette.colors),
+            },
+        }));
+        res.status(200).json(processedPalettes);
     }
     catch (error) {
         console.error('Error fetching shared palettes:', error);

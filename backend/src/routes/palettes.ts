@@ -11,7 +11,7 @@ const prisma = new PrismaClient()
 // Get all palettes for authenticated user
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-  const { search } = req.query
+    const { search } = req.query
     const userId = req.user!.id
     // console.log(`[GET /api/palettes] userId: ${userId}, favorites: ${favorites}, search: ${search}`)
 
@@ -19,36 +19,25 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response, next:
     if (search) {
       whereClause.OR = [
         { name: { contains: search as string, mode: 'insensitive' } },
-  // Field 'description' removed from schema
+        // Field 'description' removed from schema
       ]
     }
 
     const palettes = await prisma.palette.findMany({
       where: whereClause,
       orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        name: true,
-        colors: true,
-        isPublic: true,
-  isFavorite: true,
-        createdAt: true,
-        updatedAt: true
+      include: {
+        category: { select: { name: true } }
       }
     })
-   
 
-    // Parse colors JSON string back to array (add explicit type to satisfy TS)
-    const parsedPalettes = palettes.map((palette: {
-      id: string;
-      name: string;
-      colors: string;
-      isPublic: boolean;
-      createdAt: Date;
-      updatedAt: Date;
-    }) => ({
+
+    // Parse colors JSON string back to array and include category name
+    const parsedPalettes = palettes.map((palette: any) => ({
       ...palette,
-      colors: JSON.parse(palette.colors)
+      colors: JSON.parse(palette.colors),
+      category: palette.category?.name || null,
+      categoryId: undefined
     }))
 
     res.json(parsedPalettes)
@@ -57,11 +46,51 @@ router.get('/', authenticateToken, async (req: AuthRequest, res: Response, next:
   }
 });
 
+// Get explore page statistics
+router.get('/stats', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Get total public palettes count
+    const totalPalettes = await prisma.palette.count({
+      where: { isPublic: true }
+    });
+
+    // Get total bookmarks count (favorites)
+    const totalBookmarks = await prisma.bookmarkedPalette.count();
+
+    // For monthly views, we would need a views tracking table
+    // For now, we'll estimate based on activity or return a calculated value
+    // This could be enhanced later with proper view tracking
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Count activities as a proxy for engagement/views
+    const monthlyActivity = await prisma.activity.count({
+      where: {
+        createdAt: { gte: thirtyDaysAgo }
+      }
+    });
+
+    res.json({
+      totalPalettes,
+      totalBookmarks,
+      monthlyViews: monthlyActivity // Using activity as proxy for views
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get all public palettes (optionally showing if bookmarked by current user)
 router.get('/public', async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.id; // User ID is optional now
+    const { category } = req.query; // Get category from query params
     const where: any = { isPublic: true };
+
+    // If category is provided, filter by category name
+    if (category && typeof category === 'string') {
+      where.category = { name: category };
+    }
 
     const palettes = await prisma.palette.findMany({
       where,
@@ -70,15 +99,23 @@ router.get('/public', async (req: AuthRequest, res: Response, next: NextFunction
         user: {
           select: { id: true, name: true, avatarUrl: true }
         },
-        bookmarkedPalettes: userId ? { where: { userId }, select: { id: true } } : false
+        category: { select: { name: true } }, // Include category info
+        bookmarkedPalettes: userId ? { where: { userId }, select: { id: true } } : false,
+        _count: {
+          select: { bookmarkedPalettes: true }
+        }
       }
     });
 
     const parsedPalettes = palettes.map((p: any) => ({
       ...p,
       colors: JSON.parse(p.colors),
+      categoryName: p.category?.name || null,
       isBookmarked: userId ? (p.bookmarkedPalettes && p.bookmarkedPalettes.length > 0) : false,
-      bookmarkedPalettes: undefined
+      bookmarkCount: p._count?.bookmarkedPalettes || 0,
+      category: undefined,
+      bookmarkedPalettes: undefined,
+      _count: undefined
     }));
 
     res.json(parsedPalettes);
@@ -109,26 +146,24 @@ router.get('/daily', async (req: Request, res: Response, next: NextFunction) => 
 
     let newlySelected = false;
 
-    // 2. If none set, attempt to auto-select one from public palettes using smart algorithm
+    // 2. If none set, select the most bookmarked public palette
     if (!paletteOfTheDay) {
-      console.log('[daily] No existing paletteOfTheDay. Selecting a new one...');
-      // Get palettes with engagement metrics
-      const candidatePalettes = await prisma.palette.findMany({
+      console.log('[daily] No existing paletteOfTheDay. Selecting the most bookmarked palette...');
+
+      // Get the palette with the most bookmarks
+      const mostBookmarkedPalette = await prisma.palette.findFirst({
         where: { isPublic: true },
         include: {
           user: { select: { id: true, name: true, avatarUrl: true } },
-          bookmarkedPalettes: { select: { id: true } }
+          _count: { select: { bookmarkedPalettes: true } }
         },
-        orderBy: [
-          { createdAt: 'desc' }
-        ],
-        take: 100, // Get more candidates for better selection
+        orderBy: {
+          bookmarkedPalettes: { _count: 'desc' }
+        }
       });
-      console.log('[daily] Candidate palettes fetched:', candidatePalettes.length);
 
-      if (candidatePalettes.length === 0) {
-        console.log('[daily] No candidates available');
-        // Return 200 with explicit null payload instead of 404 so frontend can distinguish "no data" gracefully
+      if (!mostBookmarkedPalette) {
+        console.log('[daily] No public palettes available');
         return res.status(200).json({
           palette: null,
           autoSelected: false,
@@ -136,55 +171,21 @@ router.get('/daily', async (req: Request, res: Response, next: NextFunction) => 
         });
       }
 
-      // Score palettes based on engagement and recency
-      const scoredPalettes = candidatePalettes.map(palette => {
-        const bookmarkCount = palette.bookmarkedPalettes.length;
-        const daysSinceCreated = Math.floor((Date.now() - new Date(palette.createdAt).getTime()) / (1000 * 60 * 60 * 24));
-        const recencyBonus = Math.max(0, 30 - daysSinceCreated) / 30; // Higher score for newer palettes
-        
-        // Weighted scoring: bookmarks (70%) + recency (30%)
-        const score = (bookmarkCount * 0.7) + (recencyBonus * 0.3);
-        
-        return {
-          ...palette,
-          score
-        };
-      });
-
-      // Sort by score and add some randomness to top candidates
-  scoredPalettes.sort((a, b) => b.score - a.score);
-  console.log('[daily] Top 3 scores:', scoredPalettes.slice(0,3).map(p=>({id:p.id,score:p.score})));
-      
-      // Select from top 10 or top 25% (whichever is smaller) with weighted randomness
-  const topCandidates = scoredPalettes.slice(0, Math.min(10, Math.ceil(scoredPalettes.length * 0.25)));
-  console.log('[daily] topCandidates length:', topCandidates.length);
-      
-      // Weighted random selection favoring higher scores
-      const totalWeight = topCandidates.reduce((sum, p) => sum + (p.score + 1), 0);
-      let random = Math.random() * totalWeight;
-      
-      let selectedPalette = topCandidates[0];
-      for (const palette of topCandidates) {
-        random -= (palette.score + 1);
-        if (random <= 0) {
-          selectedPalette = palette;
-          break;
-        }
-      }
+      console.log('[daily] Most bookmarked palette:', mostBookmarkedPalette.id, 'with', mostBookmarkedPalette._count.bookmarkedPalettes, 'bookmarks');
 
       // Clear previous palette of the day and set new one
-  console.log('[daily] Clearing previous paletteOfTheDay flags');
-  await prisma.palette.updateMany({
+      console.log('[daily] Clearing previous paletteOfTheDay flags');
+      await prisma.palette.updateMany({
         where: { isPaletteOfTheDay: true },
         data: { isPaletteOfTheDay: false }
       });
-  console.log('[daily] Setting new paletteOfTheDay:', selectedPalette.id);
-  await prisma.palette.update({
-        where: { id: selectedPalette.id },
+      console.log('[daily] Setting new paletteOfTheDay:', mostBookmarkedPalette.id);
+      await prisma.palette.update({
+        where: { id: mostBookmarkedPalette.id },
         data: { isPaletteOfTheDay: true },
       });
 
-      paletteOfTheDay = selectedPalette;
+      paletteOfTheDay = mostBookmarkedPalette;
       newlySelected = true;
     }
 
@@ -212,9 +213,9 @@ router.get('/public/:id', async (req: AuthRequest, res: Response, next: NextFunc
     const userId = req.user?.id; // Optional user ID for bookmark status
 
     const palette = await prisma.palette.findFirst({
-      where: { 
-        id, 
-        isPublic: true 
+      where: {
+        id,
+        isPublic: true
       },
       include: {
         user: { select: { id: true, name: true, avatarUrl: true } },
@@ -244,9 +245,9 @@ router.get('/public/user/:userId', async (req: AuthRequest, res: Response, next:
     const currentUserId = req.user?.id; // Optional user ID for bookmark status
 
     const palettes = await prisma.palette.findMany({
-      where: { 
-        userId, 
-        isPublic: true 
+      where: {
+        userId,
+        isPublic: true
       },
       orderBy: { createdAt: 'desc' },
       include: {
@@ -275,7 +276,10 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response, ne
     const userId = req.user!.id
 
     const palette = await prisma.palette.findFirst({
-      where: { id, userId }
+      where: { id, userId },
+      include: {
+        category: { select: { name: true } }
+      }
     })
 
     if (!palette) {
@@ -284,7 +288,9 @@ router.get('/:id', authenticateToken, async (req: AuthRequest, res: Response, ne
 
     res.json({
       ...palette,
-      colors: JSON.parse(palette.colors)
+      colors: JSON.parse(palette.colors),
+      category: palette.category?.name || null,
+      categoryId: undefined
     })
   } catch (error) {
     next(error)
@@ -296,29 +302,50 @@ router.post('/',
   authenticateToken,
   [
     body('name').trim().isLength({ min: 1, max: 100 }),
-  body('colors').isArray({ min: 1, max: 10 }),
+    body('colors').isArray({ min: 1, max: 10 }),
     body('colors.*').matches(/^#[0-9A-Fa-f]{6}$/),
-  // Removed description, imageUrl, category validations (fields not in schema)
+    body('category').optional().isString(),
+    body('isPublic').optional().isBoolean(),
   ],
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const errors = validationResult(req)
       if (!errors.isEmpty()) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Validation failed',
           errors: errors.array()
         })
       }
 
-  const { name, colors } = req.body
+      const { name, colors, category, isPublic } = req.body
       const userId = req.user!.id
+
+      // Handle category: find or create PaletteCategory
+      let categoryId: string | undefined = undefined
+      if (category && typeof category === 'string' && category.trim()) {
+        const existingCategory = await prisma.paletteCategory.findUnique({
+          where: { name: category.trim() }
+        })
+        if (existingCategory) {
+          categoryId = existingCategory.id
+        } else {
+          const newCategory = await prisma.paletteCategory.create({
+            data: { name: category.trim() }
+          })
+          categoryId = newCategory.id
+        }
+      }
 
       const palette = await prisma.palette.create({
         data: {
           name,
           colors: JSON.stringify(colors),
-          isPublic: false,
-          userId
+          isPublic: isPublic || false,
+          userId,
+          categoryId
+        },
+        include: {
+          category: { select: { name: true } }
         }
       })
 
@@ -328,7 +355,9 @@ router.post('/',
       res.status(201).json({
         palette: {
           ...palette,
-          colors: JSON.parse(palette.colors)
+          colors: JSON.parse(palette.colors),
+          category: palette.category?.name || null,
+          categoryId: undefined
         }
       })
     } catch (error) {
@@ -342,25 +371,24 @@ router.put('/:id',
   authenticateToken,
   [
     body('name').optional().trim().isLength({ min: 1, max: 100 }),
-  body('colors').optional().isArray({ min: 1, max: 10 }),
+    body('colors').optional().isArray({ min: 1, max: 10 }),
     body('colors.*').optional().matches(/^#[0-9A-Fa-f]{6}$/),
-  // removed imageUrl & isFavorite
-  body('isPublic').optional().isBoolean(),
-  body('isFavorite').optional().isBoolean(),
-  // removed category
+    body('isPublic').optional().isBoolean(),
+    body('isFavorite').optional().isBoolean(),
+    body('category').optional().isString(),
   ],
   async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const errors = validationResult(req)
       if (!errors.isEmpty()) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Validation failed',
           errors: errors.array()
         })
       }
 
       const { id } = req.params
-  const { name, colors, isPublic, isFavorite } = req.body
+      const { name, colors, isPublic, isFavorite, category } = req.body
       const userId = req.user!.id
 
       // Check if palette exists and belongs to user
@@ -376,16 +404,41 @@ router.put('/:id',
       if (name !== undefined) updateData.name = name
       if (colors !== undefined) updateData.colors = JSON.stringify(colors)
       if (isPublic !== undefined) updateData.isPublic = isPublic
-  if (isFavorite !== undefined) updateData.isFavorite = isFavorite
+      if (isFavorite !== undefined) updateData.isFavorite = isFavorite
+
+      // Handle category: find or create PaletteCategory
+      if (category !== undefined) {
+        if (category && typeof category === 'string' && category.trim()) {
+          const existingCategory = await prisma.paletteCategory.findUnique({
+            where: { name: category.trim() }
+          })
+          if (existingCategory) {
+            updateData.categoryId = existingCategory.id
+          } else {
+            const newCategory = await prisma.paletteCategory.create({
+              data: { name: category.trim() }
+            })
+            updateData.categoryId = newCategory.id
+          }
+        } else {
+          // If category is empty string or null, clear the category
+          updateData.categoryId = null
+        }
+      }
 
       const palette = await prisma.palette.update({
         where: { id },
-        data: updateData
+        data: updateData,
+        include: {
+          category: { select: { name: true } }
+        }
       })
 
       res.json({
         ...palette,
-        colors: JSON.parse(palette.colors)
+        colors: JSON.parse(palette.colors),
+        category: palette.category?.name || null,
+        categoryId: undefined
       })
     } catch (error) {
       next(error)
@@ -592,7 +645,7 @@ router.post('/:id/remix', authenticateToken, async (req: AuthRequest, res: Respo
     });
 
     // Create activity for palette remix
-  await createActivity("PALETTE_REMIXED", userId, { paletteId: newPalette.id });
+    await createActivity("PALETTE_REMIXED", userId, { paletteId: newPalette.id });
 
     res.status(201).json({
       palette: {

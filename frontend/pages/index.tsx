@@ -3,12 +3,25 @@ import Link from 'next/link'
 import { motion, easeOut } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Palette as PaletteIcon, Sparkles, Heart, Download, Users, Star, ArrowRight, Zap, Brush, Share2 } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
+import { 
+  Palette as PaletteIcon, 
+  Sparkles, 
+  Heart, 
+  Download, 
+  Users, 
+  ArrowRight, 
+  Zap, 
+  Share2,
+  Eye,
+  ImageIcon,
+  Copy,
+  Bookmark,
+  Globe
+} from 'lucide-react'
 import { GetServerSideProps } from 'next'
 import { apiClient } from '@/lib/api'
 import PublicPaletteCard from '@/components/palette/PublicPaletteCard'
-
 import { Palette } from '@/store/paletteStore'
 
 interface HomePageProps {
@@ -18,7 +31,6 @@ interface HomePageProps {
 export const getServerSideProps: GetServerSideProps<HomePageProps> = async () => {
   try {
     const publicPalettes = await apiClient.getPublicPalettes();
-    // Take only the first 6 for display on the homepage
     const limitedPalettes = publicPalettes.slice(0, 6);
     return {
       props: {
@@ -38,7 +50,7 @@ export const getServerSideProps: GetServerSideProps<HomePageProps> = async () =>
 export default function HomePage({ publicPalettes }: HomePageProps) {
   // Animation variants
   const fadeInUp = {
-    hidden: { opacity: 0, y: 60 },
+    hidden: { opacity: 0, y: 40 },
     visible: { 
       opacity: 1, 
       y: 0,
@@ -51,14 +63,14 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: 0.15,
         delayChildren: 0.1
       }
     }
   }
 
   const scaleIn = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { opacity: 0, scale: 0.9 },
     visible: { 
       opacity: 1, 
       scale: 1,
@@ -66,131 +78,91 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
     }
   }
 
-  const slideInLeft = {
-    hidden: { opacity: 0, x: -60 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      transition: { duration: 0.6, ease: easeOut }
-    }
-  }
-
-  const slideInRight = {
-    hidden: { opacity: 0, x: 60 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      transition: { duration: 0.6, ease: easeOut }
-    }
-  }
-
-  
-
-  const features = [
+  const mainFeatures = [
     {
-      icon: <PaletteIcon className="h-8 w-8 text-primary" />,
-      title: "Create Palettes",
-      description: "Generate beautiful color palettes with our intuitive color picker tools.",
-      color: "from-purple-500 to-pink-500"
+      icon: <PaletteIcon className="h-6 w-6" />,
+      title: "Create Stunning Palettes",
+      description: "Build beautiful color combinations from scratch with our intuitive color picker and smart suggestions.",
+      gradient: "from-violet-500 to-purple-600"
     },
     {
-      icon: <Sparkles className="h-8 w-8 text-primary" />,
-      title: "Extract from Images",
-      description: "Upload any image and automatically extract its dominant colors.",
-      color: "from-blue-500 to-cyan-500"
+      icon: <ImageIcon className="h-6 w-6" />,
+      title: "Extract From Images",
+      description: "Upload any image and let our AI extract the perfect color palette in seconds.",
+      gradient: "from-blue-500 to-cyan-500"
     },
     {
-      icon: <Heart className="h-8 w-8 text-primary" />,
-      title: "Save & Favorite",
-      description: "Save your palettes and mark your favorites for easy access.",
-      color: "from-red-500 to-orange-500"
+      icon: <Eye className="h-6 w-6" />,
+      title: "Accessibility Tools",
+      description: "Check contrast ratios and simulate color blindness to ensure your palettes work for everyone.",
+      gradient: "from-emerald-500 to-teal-500"
     },
     {
-      icon: <Download className="h-8 w-8 text-primary" />,
-      title: "Export & Share",
-      description: "Export your palettes in various formats and share with others.",
-      color: "from-green-500 to-teal-500"
+      icon: <Download className="h-6 w-6" />,
+      title: "Export Anywhere",
+      description: "Download in CSS, SCSS, JSON, or PNG formats. Copy colors instantly to your clipboard.",
+      gradient: "from-orange-500 to-amber-500"
     }
   ]
 
-  const testimonials = [
+  const socialFeatures = [
     {
-      quote: "Colorra has transformed how I approach design projects. The palette generator is a game-changer!",
-      author: "Sarah M., UI Designer",
-      rating: 5
+      icon: <Globe className="h-8 w-8" />,
+      title: "Explore Community",
+      description: "Browse thousands of palettes shared by designers worldwide"
     },
     {
-      quote: "Extracting colors from images is so seamless. It saves me hours of work!",
-      author: "James T., Web Developer",
-      rating: 4
+      icon: <Users className="h-8 w-8" />,
+      title: "Follow Creators",
+      description: "Build your personalized feed by following your favorite creators"
     },
     {
-      quote: "The ability to save and share palettes makes collaboration so much easier.",
-      author: "Emma L., Graphic Artist",
-      rating: 5
+      icon: <Bookmark className="h-8 w-8" />,
+      title: "Save & Organize",
+      description: "Bookmark palettes you love and organize them for your projects"
+    },
+    {
+      icon: <Copy className="h-8 w-8" />,
+      title: "Remix Palettes",
+      description: "Take inspiration and create your own version of any public palette"
     }
   ]
 
-  const steps = [
-    {
-      icon: <Brush className="h-8 w-8 text-primary" />,
-      title: "Pick or Upload",
-      description: "Choose colors manually or upload an image to extract colors.",
-      step: "01"
-    },
-    {
-      icon: <Zap className="h-8 w-8 text-primary" />,
-      title: "Customize",
-      description: "Fine-tune your palette with our advanced editing tools.",
-      step: "02"
-    },
-    {
-      icon: <Share2 className="h-8 w-8 text-primary" />,
-      title: "Export",
-      description: "Download your palette in multiple formats or share it online.",
-      step: "03"
-    }
+  const stats = [
+    { value: "10K+", label: "Color Palettes" },
+    { value: "5K+", label: "Active Creators" },
+    { value: "50K+", label: "Colors Shared" }
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-primary-50 to-accent-50 overflow-hidden">
+    <div className="min-h-screen bg-white overflow-hidden">
       {/* Navigation */}
       <motion.nav 
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50"
+        className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-b border-gray-100 z-50"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <motion.div 
-              className="flex items-center space-x-2"
-              whileHover={{ scale: 1.05 }}
+              className="flex items-center"
+              whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
               <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
             </motion.div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-3">
               <Link href="/signin">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button variant="ghost" className="text-neutral-700 hover:bg-[#8b5cf6] hover:text-white transition-all duration-300">
-                    Sign In
-                  </Button>
-                </motion.div>
+                <Button variant="ghost" className="text-gray-700 hover:text-gray-900 font-medium">
+                  Sign In
+                </Button>
               </Link>
               <Link href="/signup">
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button className="bg-[#14b8a6] hover:bg-[#0f766e] text-white shadow-lg hover:shadow-xl transition-all duration-300">
-                    Get Started
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </motion.div>
+                <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 font-medium">
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </Link>
             </div>
           </div>
@@ -198,121 +170,126 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 relative">
-        {/* Floating background elements */}
-        <motion.div 
-          className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-20 blur-xl"
-          animate={{ 
-            y: [0, -20, 0],
-            rotate: [0, 180, 360]
-          }}
-          transition={{ 
-            duration: 8,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div 
-          className="absolute top-40 right-20 w-16 h-16 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-20 blur-xl"
-          animate={{ 
-            y: [0, 20, 0],
-            rotate: [360, 180, 0]
-          }}
-          transition={{ 
-            duration: 6,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div 
-          className="absolute bottom-20 left-1/4 w-24 h-24 bg-gradient-to-r from-green-400 to-teal-400 rounded-full opacity-20 blur-xl"
-          animate={{ 
-            x: [0, 30, 0],
-            y: [0, -10, 0]
-          }}
-          transition={{ 
-            duration: 10,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
+      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        {/* Gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-white to-cyan-50 -z-10" />
         
-        <div className="max-w-7xl mx-auto text-center relative z-10">
+        {/* Animated gradient orbs */}
+        <motion.div 
+          className="absolute top-20 -left-32 w-96 h-96 bg-gradient-to-r from-violet-200 to-purple-200 rounded-full blur-3xl opacity-40"
+          animate={{ 
+            x: [0, 50, 0],
+            y: [0, 30, 0],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div 
+          className="absolute bottom-0 -right-32 w-96 h-96 bg-gradient-to-r from-cyan-200 to-teal-200 rounded-full blur-3xl opacity-40"
+          animate={{ 
+            x: [0, -50, 0],
+            y: [0, -30, 0],
+          }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        />
+
+        <div className="max-w-5xl mx-auto text-center relative z-10">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={staggerContainer}
           >
-            <motion.h1 
-              variants={fadeInUp}
-              className="text-5xl md:text-7xl font-bold text-neutral-900 mb-6"
-            >
-              Create Beautiful
-              <motion.span 
-                className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] via-[#14b8a6] to-[#8b5cf6] block"
-                animate={{ 
-                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-                }}
-                transition={{ 
-                  duration: 5,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{ backgroundSize: "200% 200%" }}
-              >
-                Color Palettes
-              </motion.span>
-            </motion.h1>
-            <motion.p 
-              variants={fadeInUp}
-              className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto"
-            >
-              Discover, create, and manage stunning color palettes with our modern web application. 
-              Perfect for designers, developers, and creative professionals.
-            </motion.p>
+            {/* Badge */}
             <motion.div 
               variants={fadeInUp}
-              className="flex items-center justify-center space-x-4"
+              className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span>The Ultimate Color Palette Tool</span>
+            </motion.div>
+
+            {/* Main headline */}
+            <motion.h1 
+              variants={fadeInUp}
+              className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight"
+            >
+              Create, Share & Discover
+              <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-600">
+                Beautiful Color Palettes
+              </span>
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.p 
+              variants={fadeInUp}
+              className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed"
+            >
+              Colorra helps designers, developers, and creatives build stunning color combinations, 
+              extract colors from images, and share their work with a global community.
+            </motion.p>
+
+            {/* CTA Buttons */}
+            <motion.div 
+              variants={fadeInUp}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
             >
               <Link href="/signup">
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button size="lg" className="bg-[#14b8a6] hover:bg-[#0f766e] px-8 py-3 text-lg text-white shadow-2xl hover:shadow-3xl transition-all duration-300">
-                    Start Creating
-                    <motion.div
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </motion.div>
+                <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
+                  <Button size="lg" className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-6 text-lg shadow-xl shadow-violet-500/30 font-semibold">
+                    Start Creating for Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </motion.div>
               </Link>
-              <Link href="/signin">
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button variant="outline" size="lg" className="px-8 py-3 text-lg hover:bg-[#8b5cf6] hover:text-white border-2 hover:border-[#8b5cf6] transition-all duration-300">
-                    Sign In
+              <Link href="/explore">
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                  <Button variant="outline" size="lg" className="px-8 py-6 text-lg border-gray-300 hover:bg-gray-50 font-medium">
+                    <Eye className="mr-2 h-5 w-5" />
+                    Explore Palettes
                   </Button>
                 </motion.div>
               </Link>
+            </motion.div>
+
+            {/* Hero palette preview */}
+            <motion.div 
+              variants={scaleIn}
+              className="max-w-3xl mx-auto"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-cyan-500/20 blur-2xl rounded-3xl" />
+                <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+                  <div className="flex h-32">
+                    {['#8B5CF6', '#A78BFA', '#14B8A6', '#2DD4BF', '#06B6D4'].map((color, i) => (
+                      <motion.div
+                        key={color}
+                        className="flex-1 transition-all duration-300 hover:flex-[1.5]"
+                        style={{ backgroundColor: color }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.1 + 0.5 }}
+                      />
+                    ))}
+                  </div>
+                  <div className="p-4 flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-gray-900">Aurora Dreams</p>
+                      <p className="text-sm text-gray-500">by Colorra Team</p>
+                    </div>
+                    <div className="flex items-center gap-3 text-gray-400">
+                      <Heart className="h-5 w-5" />
+                      <Share2 className="h-5 w-5" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50 relative">
-        <motion.div 
-          className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-primary/5 to-transparent"
-          animate={{ x: ["-100%", "100%"] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        />
-        <div className="max-w-7xl mx-auto relative z-10">
+      {/* What is Colorra Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
           <motion.div 
             initial="hidden"
             whileInView="visible"
@@ -322,160 +299,48 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
           >
             <motion.h2 
               variants={fadeInUp}
-              className="text-4xl font-bold text-neutral-900 mb-4"
+              className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
             >
-              Everything you need to create
+              What is Colorra?
             </motion.h2>
             <motion.p 
               variants={fadeInUp}
-              className="text-xl text-neutral-600 max-w-2xl mx-auto"
+              className="text-xl text-gray-600 max-w-3xl mx-auto"
             >
-              Powerful tools and features to help you create, manage, and share beautiful color palettes.
+              Colorra is a modern color palette platform that combines powerful creation tools 
+              with a vibrant community of designers and developers.
             </motion.p>
           </motion.div>
-          
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.1 }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
-            style={{ perspective: 1000 }}
-          >
-            {features.map((feature, index) => (
-              <motion.div
-                key={index}
-                variants={scaleIn}
-                whileHover={{ 
-                  y: -10,
-                  rotateY: 5,
-                  scale: 1.05
-                }}
-                transition={{ type: "spring", stiffness: 300 }}
-              >
-                <Card className="text-center p-6 hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm relative overflow-hidden group">
-                  {/* Animated gradient background */}
-                  <motion.div 
-                    className={`absolute inset-0 bg-gradient-to-r ${feature.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
-                    initial={{ scale: 0, rotate: 0 }}
-                    whileHover={{ scale: 1.2, rotate: 5 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <CardHeader className="pb-4 relative z-10">
-                    <motion.div 
-                      className="flex justify-center mb-4"
-                      whileHover={{ 
-                        scale: 1.2,
-                        rotate: 360
-                      }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      <div className="p-3 bg-primary/10 rounded-full">
-                        {feature.icon}
-                      </div>
-                    </motion.div>
-                    <CardTitle className="text-xl text-neutral-900">
-                      {feature.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <CardDescription className="text-neutral-600">
-                      {feature.description}
-                    </CardDescription>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
 
-      {/* Testimonials Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-primary-50 to-accent-50 relative overflow-hidden">
-        {/* Animated background shapes */}
-        <motion.div 
-          className="absolute -top-10 -left-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.6, 0.3]
-          }}
-          transition={{ duration: 4, repeat: Infinity }}
-        />
-        <motion.div 
-          className="absolute -bottom-10 -right-10 w-60 h-60 bg-accent/10 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            opacity: [0.4, 0.2, 0.4]
-          }}
-          transition={{ duration: 6, repeat: Infinity }}
-        />
-        
-        <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.3 }}
-            variants={staggerContainer}
-            className="text-center mb-16"
-          >
-            <motion.h2 
-              variants={slideInLeft}
-              className="text-4xl font-bold text-neutral-900 mb-4"
-            >
-              Loved by Creatives Worldwide
-            </motion.h2>
-            <motion.p 
-              variants={slideInRight}
-              className="text-xl text-neutral-600 max-w-2xl mx-auto"
-            >
-              See what designers and developers are saying about Colorra.
-            </motion.p>
-          </motion.div>
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
             variants={staggerContainer}
-            className="grid md:grid-cols-3 gap-8"
+            className="grid md:grid-cols-2 gap-6"
           >
-            {testimonials.map((testimonial, index) => (
+            {mainFeatures.map((feature, index) => (
               <motion.div
                 key={index}
                 variants={fadeInUp}
-                whileHover={{ 
-                  y: -5,
-                  scale: 1.03,
-                  rotateX: 5
-                }}
+                whileHover={{ y: -5 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <Card className="p-6 hover:shadow-2xl transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm relative overflow-hidden group">
-                  <motion.div 
-                    className="absolute inset-2 bg-gradient-to-br from-[#8b5cf6]/5 to-[#14b8a6]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"
-                    initial={{ scale: 0.8 }}
-                    whileInView={{ scale: 1.0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  <CardContent className="relative z-10 p-2">
-                    <motion.div 
-                      className="flex justify-center mb-4"
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, scale: 0 }}
-                          whileInView={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: index * 0.1 + i * 0.1 }}
-                        >
-                          <Star className="h-5 w-5 text-primary fill-current" />
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                    <p className="text-neutral-600 mb-4 italic">&quot;{testimonial.quote}&quot;</p>
-                    <p className="text-neutral-900 font-semibold">{testimonial.author}</p>
+                <Card className="h-full bg-white border-0 shadow-lg shadow-gray-200/50 hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                  <CardContent className="p-8">
+                    <div className="flex items-start gap-5">
+                      <div className={`flex-shrink-0 w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center text-white shadow-lg`}>
+                        {feature.icon}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors">
+                          {feature.title}
+                        </h3>
+                        <p className="text-gray-600 leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
@@ -484,9 +349,9 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50 relative">
-        <div className="max-w-7xl mx-auto">
+      {/* Social Features Section */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
           <motion.div 
             initial="hidden"
             whileInView="visible"
@@ -494,315 +359,176 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             variants={staggerContainer}
             className="text-center mb-16"
           >
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-cyan-100 text-cyan-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+              <Users className="h-4 w-4" />
+              <span>Community Powered</span>
+            </motion.div>
             <motion.h2 
               variants={fadeInUp}
-              className="text-4xl font-bold text-neutral-900 mb-4"
+              className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
             >
-              How Colorra Works
+              More Than Just a Tool
             </motion.h2>
             <motion.p 
               variants={fadeInUp}
-              className="text-xl text-neutral-600 max-w-2xl mx-auto"
+              className="text-xl text-gray-600 max-w-3xl mx-auto"
             >
-              Create stunning palettes in just a few simple steps.
+              Join a thriving community of color enthusiasts. Share your creations, 
+              discover inspiration, and connect with fellow designers.
             </motion.p>
           </motion.div>
+
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
             variants={staggerContainer}
-            className="grid md:grid-cols-3 gap-8 relative"
-            style={{ perspective: 1000 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16"
           >
-            {/* Connection lines */}
-            <div className="hidden md:block absolute top-1/2 left-1/3 w-1/3 h-0.5 bg-gradient-to-r from-primary/30 to-primary/60 transform -translate-y-1/2 z-0"></div>
-            <div className="hidden md:block absolute top-1/2 right-1/3 w-1/3 h-0.5 bg-gradient-to-r from-primary/60 to-primary/30 transform -translate-y-1/2 z-0"></div>
-            
-            {steps.map((step, index) => (
+            {socialFeatures.map((feature, index) => (
               <motion.div
                 key={index}
-                variants={{
-                  hidden: { opacity: 0, y: 50, scale: 0.8 },
-                  visible: { 
-                    opacity: 1, 
-                    y: 0, 
-                    scale: 1,
-                    transition: { 
-                      duration: 0.6, 
-                      delay: index * 0.2,
-                      type: "spring",
-                      stiffness: 100
-                    }
-                  }
-                }}
-                whileHover={{ 
-                  y: -10,
-                  scale: 1.05,
-                  rotateY: 10
-                }}
-                className="relative z-10"
+                variants={scaleIn}
+                className="text-center p-6"
               >
-                <Card className="text-center p-8 hover:shadow-2xl transition-all duration-500 border-0 bg-white/80 backdrop-blur-sm relative overflow-hidden group">
-                  {/* Step number background */}
-                  <motion.div 
-                    className="absolute -top-4 -right-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center"
-                    initial={{ rotate: 0, scale: 0 }}
-                    whileInView={{ rotate: 360, scale: 1 }}
-                    transition={{ duration: 0.8, delay: index * 0.2 }}
-                  >
-                    <span className="text-2xl font-bold text-primary">{step.step}</span>
-                  </motion.div>
-                  
-                  {/* Animated gradient overlay */}
-                  <motion.div 
-                    className="absolute inset-2 bg-gradient-to-br from-white/40 via-white/20 to-white/10 opacity-0 group-hover:opacity-100 rounded-lg"
-                    initial={{ scale: 0.98, rotate: 0 }}
-                    whileInView={{ scale: 1.0 }}
-                    transition={{ duration: 0.3 }}
-                  />
-                  
-                  <CardHeader className="pb-6 relative z-10">
-                    <motion.div 
-                      className="flex justify-center mb-6"
-                      whileHover={{ 
-                        scale: 1.3,
-                        rotate: [0, -5, 5, 0]
-                      }}
-                      transition={{ duration: 0.6 }}
-                    >
-                      <div className="p-4 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl">
-                        {step.icon}
-                      </div>
-                    </motion.div>
-                    <CardTitle className="text-xl text-neutral-900 mb-2">
-                      {step.title}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="relative z-10">
-                    <CardDescription className="text-neutral-600 text-base">
-                      {step.description}
-                    </CardDescription>
-                  </CardContent>
-                  
-                  {/* Animated border */}
-                  <motion.div 
-                    className="absolute inset-0 rounded-lg border-2 border-transparent bg-gradient-to-r from-primary/30 via-accent/30 to-primary/30 opacity-0 group-hover:opacity-100"
-                    style={{
-                      background: "linear-gradient(45deg, transparent, transparent), linear-gradient(45deg, #14b8a6, #ffffff)",
-                      backgroundClip: "padding-box, border-box",
-                      backgroundOrigin: "padding-box, border-box"
-                    }}
-                    animate={{ 
-                      backgroundPosition: ["0% 0%", "100% 100%"]
-                    }}
-                    transition={{ 
-                      duration: 3, 
-                      repeat: Infinity,
-                      ease: "linear"
-                    }}
-                  />
-                </Card>
+                <motion.div 
+                  className="w-16 h-16 bg-gradient-to-br from-violet-100 to-cyan-100 rounded-2xl flex items-center justify-center text-violet-600 mx-auto mb-4"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                >
+                  {feature.icon}
+                </motion.div>
+                <h3 className="font-bold text-gray-900 mb-2">{feature.title}</h3>
+                <p className="text-sm text-gray-600">{feature.description}</p>
               </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUp}
+            className="flex justify-center gap-12 md:gap-20"
+          >
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <p className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-cyan-600">
+                  {stat.value}
+                </p>
+                <p className="text-gray-600 mt-1">{stat.label}</p>
+              </div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Community Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-accent-50 to-primary-50 relative overflow-hidden">
-        {/* Animated background particles */}
-        <motion.div 
-          className="absolute top-1/4 left-1/4 w-2 h-2 bg-primary rounded-full"
-          animate={{ 
-            scale: [0, 1, 0],
-            opacity: [0, 1, 0]
-          }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0 }}
-        />
-        <motion.div 
-          className="absolute top-3/4 right-1/4 w-2 h-2 bg-accent rounded-full"
-          animate={{ 
-            scale: [0, 1, 0],
-            opacity: [0, 1, 0]
-          }}
-          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-        />
-        <motion.div 
-          className="absolute top-1/2 left-3/4 w-2 h-2 bg-primary rounded-full"
-          animate={{ 
-            scale: [0, 1, 0],
-            opacity: [0, 1, 0]
-          }}
-          transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-        />
-        
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.5 }}
-            variants={staggerContainer}
-          >
-            <motion.div
-              variants={scaleIn}
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 300 }}
+      {/* Community Palettes Preview */}
+      {publicPalettes.length > 0 && (
+        <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-violet-50/30">
+          <div className="max-w-7xl mx-auto">
+            <motion.div 
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.3 }}
+              variants={staggerContainer}
+              className="text-center mb-16"
             >
-              <Users className="h-12 w-12 text-primary mx-auto mb-4" />
-            </motion.div>
-            <motion.h2 
-              variants={fadeInUp}
-              className="text-4xl font-bold text-neutral-900 mb-6"
-            >
-              Explore Community Palettes
-            </motion.h2>
-            <motion.p 
-              variants={fadeInUp}
-              className="text-xl text-neutral-600 mb-8 max-w-3xl mx-auto"
-            >
-              Discover stunning color palettes shared by our creative community.
-            </motion.p>
-
-            {publicPalettes.length > 0 ? (
-              <motion.div
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                variants={staggerContainer}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10"
+              <motion.h2 
+                variants={fadeInUp}
+                className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
               >
-                {publicPalettes.map((palette) => (
-                  <PublicPaletteCard key={palette.id} palette={palette} readonly={true} />
-                ))}
-              </motion.div>
-            ) : (
-              <p className="text-neutral-600 mb-10">No public palettes to display yet. Be the first to share!</p>
-            )}
+                Fresh From the Community
+              </motion.h2>
+              <motion.p 
+                variants={fadeInUp}
+                className="text-xl text-gray-600"
+              >
+                Explore the latest palettes shared by our creative community
+              </motion.p>
+            </motion.div>
 
-            <motion.div variants={fadeInUp}>
-              <Link href="/explore" passHref>
-                <motion.div
-                  whileHover={{ 
-                    scale: 1.05, 
-                    y: -5
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-block"
-                >
-                  <Button size="lg" className="bg-[#8b5cf6] hover:bg-[#7c3aed] px-8 py-3 text-lg text-white shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden">
-                    <motion.div 
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
-                    />
-                    <span className="relative z-10">Explore All Public Palettes</span>
-                    <motion.div
-                      className="relative z-10"
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    >
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </motion.div>
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              variants={staggerContainer}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
+            >
+              {publicPalettes.map((palette) => (
+                <motion.div key={palette.id} variants={fadeInUp}>
+                  <PublicPaletteCard palette={palette} readonly={true} />
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <motion.div 
+              variants={fadeInUp}
+              className="text-center"
+            >
+              <Link href="/explore">
+                <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }} className="inline-block">
+                  <Button size="lg" className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-6 text-lg shadow-xl shadow-violet-500/30 font-semibold">
+                    View All Palettes
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </motion.div>
               </Link>
             </motion.div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+        </section>
+      )}
 
-      {/* CTA Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 relative">
-        {/* Animated gradient background */}
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-br from-[#8b5cf6]/5 via-white to-[#14b8a6]/5"
-          animate={{ 
-            backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"]
-          }}
-          transition={{ 
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          style={{ backgroundSize: "400% 400%" }}
-        />
+      {/* Final CTA Section */}
+      <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-700" />
         
         {/* Decorative elements */}
         <motion.div 
-          className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-r from-[#8b5cf6]/10 to-[#14b8a6]/10 rounded-full blur-3xl"
-          animate={{ 
-            scale: [1, 1.2, 1],
-            rotate: [0, 180, 360]
-          }}
+          className="absolute top-10 left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+          animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 8, repeat: Infinity }}
         />
         <motion.div 
-          className="absolute bottom-10 left-10 w-24 h-24 bg-gradient-to-r from-[#14b8a6]/10 to-[#8b5cf6]/10 rounded-full blur-2xl"
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            rotate: [360, 180, 0]
-          }}
+          className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl"
+          animate={{ scale: [1.2, 1, 1.2] }}
           transition={{ duration: 6, repeat: Infinity }}
         />
-        
-        <div className="max-w-5xl mx-auto text-center relative z-10 px-8">
+
+        <div className="max-w-4xl mx-auto text-center relative z-10">
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.5 }}
             variants={staggerContainer}
-            className="bg-white/60 backdrop-blur-sm rounded-3xl p-12 shadow-2xl border border-white/20"
           >
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-white/20 text-white px-4 py-1.5 rounded-full text-sm font-medium mb-6 backdrop-blur-sm">
+              <Zap className="h-4 w-4" />
+              <span>100% Free to Get Started</span>
+            </motion.div>
+            
             <motion.h2 
               variants={fadeInUp}
-              className="text-5xl md:text-6xl font-bold text-neutral-900 mb-8"
+              className="text-4xl md:text-6xl font-bold text-white mb-6"
             >
-              Ready to start{' '}
-              <motion.span 
-                className="text-transparent bg-clip-text bg-gradient-to-r from-[#8b5cf6] to-[#14b8a6]"
-                animate={{ 
-                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-                }}
-                transition={{ 
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
-                style={{ backgroundSize: "200% 200%" }}
-              >
-                creating?
-              </motion.span>
+              Ready to Find Your
+              <span className="block">Perfect Colors?</span>
             </motion.h2>
+            
             <motion.p 
               variants={fadeInUp}
-              className="text-xl text-neutral-600 mb-12 max-w-3xl mx-auto leading-relaxed"
+              className="text-xl text-white/80 mb-10 max-w-2xl mx-auto"
             >
-              Join thousands of designers and developers who trust Colorra for their color palette needs. 
-              Create, share, and discover beautiful color combinations that bring your projects to life.
+              Join thousands of designers and developers who use Colorra to create 
+              beautiful, accessible color palettes for their projects.
             </motion.p>
+            
             <motion.div variants={fadeInUp}>
               <Link href="/signup">
-                <motion.div
-                  whileHover={{ 
-                    scale: 1.05, 
-                    y: -8
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-block"
-                >
-                  <Button size="lg" className="bg-gradient-to-r from-[#8b5cf6] to-[#14b8a6] hover:from-[#7c3aed] hover:to-[#0f766e] px-16 py-6 text-xl text-white shadow-2xl hover:shadow-3xl transition-all duration-300 relative overflow-hidden rounded-full">
-                    <motion.div 
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                      animate={{ x: ["-100%", "100%"] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    />
-                    <span className="relative z-10 font-semibold">Get Started Free</span>
-                    <motion.div
-                      className="relative z-10"
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                    >
-                      <ArrowRight className="ml-3 h-6 w-6" />
-                    </motion.div>
+                <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.98 }} className="inline-block">
+                  <Button size="lg" className="bg-white text-violet-700 hover:bg-gray-100 px-12 py-7 text-xl font-bold shadow-2xl">
+                    Create Your First Palette
+                    <ArrowRight className="ml-3 h-6 w-6" />
                   </Button>
                 </motion.div>
               </Link>
@@ -812,65 +538,36 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
       </section>
 
       {/* Footer */}
-      <motion.footer 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
-        className="bg-neutral-900 text-white py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
-      >
-        {/* Animated background gradient */}
-        <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-primary/20 via-transparent to-accent/20"
-          animate={{ 
-            backgroundPosition: ["0% 0%", "100% 0%", "0% 0%"]
-          }}
-          transition={{ 
-            duration: 15,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          style={{ backgroundSize: "200% 100%" }}
-        />
-        
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <motion.div 
-            className="flex items-center justify-center space-x-2 mb-4"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 400 }}
-          >
-            <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
-          </motion.div>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-neutral-400 mb-4"
-          >
-            Create beautiful color palettes with ease.
-          </motion.p>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="text-neutral-400"
-          >
-            Developed by{' '}
-            <motion.a
-              href="https://eawebcraft.com.ng"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              Eawebcraft
-            </motion.a>
-          </motion.p>
+      <footer className="bg-gray-900 text-gray-400 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center">
+              <Image 
+                src="/images/colorra-logo.png" 
+                alt="Colorra Logo" 
+                width={120} 
+                height={40} 
+                className="brightness-0 invert opacity-90"
+              />
+            </div>
+            
+            <div className="flex items-center gap-8 text-sm">
+              <Link href="/explore" className="hover:text-white transition-colors">Explore</Link>
+              <Link href="/signin" className="hover:text-white transition-colors">Sign In</Link>
+              <Link href="/signup" className="hover:text-white transition-colors">Get Started</Link>
+            </div>
+            
+            <div className="text-center md:text-right">
+              <p className="text-sm">
+                Developed with ❤️ by <span className="text-white font-medium">Emmanuel Ayeni</span>
+              </p>
+              <p className="text-xs mt-1 text-gray-500">
+                © {new Date().getFullYear()} Colorra. All rights reserved.
+              </p>
+            </div>
+          </div>
         </div>
-      </motion.footer>
+      </footer>
     </div>
   )
 }

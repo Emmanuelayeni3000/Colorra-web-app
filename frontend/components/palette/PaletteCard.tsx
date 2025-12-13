@@ -8,12 +8,14 @@ import {
   FileDown,
   Clipboard,
   Heart,
-  Share2
+  Share2,
+  Globe,
+  Lock
 } from 'lucide-react' 
 import { Palette } from '@/store/paletteStore'
 import { usePaletteActions } from '@/hooks/usePaletteActions'
-import { exportPaletteAsJSON, exportPaletteAsCSS, exportPaletteAsSCSS, exportPaletteAsPNG, copyPaletteToClipboard } from '@/lib/paletteExport'
-import { cn, getContrastingTextColor } from '@/lib/utils'
+import { exportPaletteAsJSON, exportPaletteAsCSS, exportPaletteAsSCSS, exportPaletteAsPNG, exportPaletteAsSVG, copyPaletteToClipboard } from '@/lib/paletteExport'
+import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import EditPaletteModal from './EditPaletteModal'
 import SharePaletteModal from './SharePaletteModal'
@@ -29,6 +31,7 @@ interface DropdownMenuProps {
   onCopy: (e: React.MouseEvent) => void;
   onExport: (format: 'json' | 'css' | 'scss') => (e: React.MouseEvent) => void;
   onExportPNG: (e: React.MouseEvent) => void;
+  onExportSVG: (e: React.MouseEvent) => void;
   onDelete: (e: React.MouseEvent) => void;
   onEdit: (e: React.MouseEvent) => void;
   onShare: (e: React.MouseEvent) => void;
@@ -41,6 +44,7 @@ function DropdownMenu({
   onCopy,
   onExport,
   onExportPNG,
+  onExportSVG,
   onDelete,
   onEdit,
   onShare,
@@ -54,15 +58,12 @@ function DropdownMenu({
       const targetRect = targetRef.current.getBoundingClientRect()
       const dropdownRect = dropdownRef.current.getBoundingClientRect()
       
-      let top = targetRect.bottom + window.scrollY + 8
+      const top = targetRect.bottom + window.scrollY + 8
       let left = targetRect.right + window.scrollX - dropdownRect.width
       
-      // Adjust if dropdown would go off screen
       if (left < 8) {
         left = targetRect.left + window.scrollX
       }
-      
-      
       
       setPosition({ top, left })
     }
@@ -82,20 +83,20 @@ function DropdownMenu({
   return createPortal(
     <div
       ref={dropdownRef}
-      className="absolute z-50 bg-white border border-neutral-200 rounded-lg shadow-lg py-1 min-w-[180px]"
+      className="absolute z-50 bg-white/95 backdrop-blur-xl border border-neutral-200/50 rounded-xl shadow-elevated py-1.5 min-w-[180px] animate-scale-in"
       style={{ top: position.top, left: position.left }}
     >
       {!isReadOnly && (
         <>
           <button
-            className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+            className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-purple-50 hover:text-purple-600 transition-smooth rounded-lg mx-1 mr-2"
             onClick={onEdit}
           >
             <Edit className="h-4 w-4 mr-2" />
             Edit Palette
           </button>
           <button
-            className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+            className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-teal-50 hover:text-teal-600 transition-smooth rounded-lg mx-1 mr-2"
             onClick={onShare}
           >
             <Share2 className="h-4 w-4 mr-2" />
@@ -104,46 +105,53 @@ function DropdownMenu({
         </>
       )}
       <button
-        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-smooth rounded-lg mx-1 mr-2"
         onClick={onCopy}
       >
         <Clipboard className="h-4 w-4 mr-2" />
         Copy Colors
       </button>
-      <div className="border-t border-neutral-200 my-1"></div>
+      <div className="border-t border-neutral-100 my-1.5"></div>
       <button
-        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-smooth rounded-lg mx-1 mr-2"
         onClick={onExport('json')}
       >
         <FileDown className="h-4 w-4 mr-2" />
         Export as JSON
       </button>
       <button
-        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-smooth rounded-lg mx-1 mr-2"
         onClick={onExport('css')}
       >
         <FileDown className="h-4 w-4 mr-2" />
         Export as CSS
       </button>
       <button
-        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-smooth rounded-lg mx-1 mr-2"
         onClick={onExport('scss')}
       >
         <FileDown className="h-4 w-4 mr-2" />
         Export as SCSS
       </button>
       <button
-        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50"
+        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-smooth rounded-lg mx-1 mr-2"
         onClick={onExportPNG}
       >
         <FileDown className="h-4 w-4 mr-2" />
         Export as PNG
       </button>
+      <button
+        className="flex items-center w-full px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 transition-smooth rounded-lg mx-1 mr-2"
+        onClick={onExportSVG}
+      >
+        <FileDown className="h-4 w-4 mr-2" />
+        Export as SVG
+      </button>
       {!isReadOnly && (
         <>
-          <div className="border-t border-neutral-200 my-1"></div>
+          <div className="border-t border-neutral-100 my-1.5"></div>
           <button
-            className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+            className="flex items-center w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-smooth rounded-lg mx-1 mr-2"
             onClick={onDelete}
           >
             <Trash2 className="h-4 w-4 mr-2" />
@@ -160,7 +168,7 @@ export default function PaletteCard({ palette, isReadOnly }: PaletteCardProps) {
   const { toggleFavorite, deletePalette, togglePublic } = usePaletteActions()
   const [showActions, setShowActions] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false); // New state for share modal
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
@@ -244,14 +252,26 @@ export default function PaletteCard({ palette, isReadOnly }: PaletteCardProps) {
     }
   };
 
+  const handleExportSVG = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowActions(false);
+    try {
+      exportPaletteAsSVG(palette);
+      toast.success('Palette exported as SVG!');
+    } catch {
+      toast.error('Failed to export palette as SVG');
+    }
+  };
+
   const handleCopyColor = (color: string) => {
     navigator.clipboard.writeText(color);
     toast.success(`Copied ${color} to clipboard!`);
   };
 
   return (
-    <div className="relative group rounded-lg overflow-hidden shadow-lg transition-all duration-300 ease-in-out hover:shadow-2xl">
-      <div className="flex h-40">
+    <div className="relative group rounded-2xl overflow-hidden bg-white shadow-lg border border-neutral-100/50 transition-all duration-300 ease-out hover:shadow-xl hover:-translate-y-1">
+      {/* Color Swatches */}
+      <div className="flex h-36">
         {palette.colors.map((color, index) => (
           <div
             key={index}
@@ -259,10 +279,10 @@ export default function PaletteCard({ palette, isReadOnly }: PaletteCardProps) {
             style={{ backgroundColor: color }}
             onClick={() => handleCopyColor(color)}
           >
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/swatch:opacity-100 transition-opacity duration-300">
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/swatch:opacity-100 transition-all duration-300 bg-black/10 backdrop-blur-[2px]">
               <span
-                className="text-sm font-sans uppercase"
-                style={{ color: getContrastingTextColor(color) }}
+                className="text-xs font-mono font-semibold uppercase px-2 py-1 rounded-lg bg-white/90 shadow-sm"
+                style={{ color: color }}
               >
                 {color}
               </span>
@@ -270,41 +290,57 @@ export default function PaletteCard({ palette, isReadOnly }: PaletteCardProps) {
           </div>
         ))}
       </div>
-      <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-center bg-white rounded-b-lg">
-        <span className="text-sm font-medium text-neutral-800">{palette.name}</span>
-        <div className="flex items-center space-x-1">
+      
+      {/* Card Footer */}
+      <div className="p-3 flex justify-between items-center bg-white border-t border-neutral-100/50">
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-semibold text-neutral-800 truncate max-w-[150px]">{palette.name}</span>
+          {/* Public/Private indicator */}
+          {palette.isPublic ? (
+            <Globe className="h-3.5 w-3.5 text-emerald-500" />
+          ) : (
+            <Lock className="h-3.5 w-3.5 text-neutral-400" />
+          )}
+        </div>
+        <div className="flex items-center space-x-0.5">
           {!isReadOnly && (
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 hover:bg-[#14b8a6] hover:text-white"
+              className={cn(
+                "h-8 w-8 rounded-lg transition-smooth",
+                palette.isPublic 
+                  ? "text-emerald-500 hover:bg-emerald-50" 
+                  : "text-neutral-400 hover:bg-neutral-100"
+              )}
               title={palette.isPublic ? 'Make Private' : 'Make Public'}
               onClick={(e) => {
                 e.stopPropagation()
                 togglePublic(palette.id, palette.isPublic)
               }}
             >
-              {/* Simple icon indicator: filled circle if public, outline if private */}
-              <span
-                className={cn(
-                  'h-3 w-3 rounded-full border',
-                  palette.isPublic ? 'bg-emerald-500 border-emerald-500' : 'border-neutral-400'
-                )}
-              />
+              {palette.isPublic ? (
+                <Globe className="h-4 w-4" />
+              ) : (
+                <Lock className="h-4 w-4" />
+              )}
             </Button>
           )}
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 hover:bg-[#14b8a6] hover:text-white"
+            className={cn(
+              "h-8 w-8 rounded-lg transition-smooth",
+              palette.isFavorite 
+                ? "text-pink-500 hover:bg-pink-50" 
+                : "text-neutral-400 hover:bg-neutral-100"
+            )}
             onClick={handleToggleFavorite}
           >
             <Heart
               className={cn(
-                "h-4 w-4",
-                palette.isFavorite
-                  ? "fill-red-500 text-red-500"
-                  : "text-neutral-400"
+                "h-4 w-4 transition-smooth",
+                palette.isFavorite && "fill-current"
               )}
             />
           </Button>
@@ -313,7 +349,7 @@ export default function PaletteCard({ palette, isReadOnly }: PaletteCardProps) {
               ref={moreButtonRef}
               variant="ghost"
               size="icon"
-              className="h-8 w-8 hover:bg-[#14b8a6] hover:text-white"
+              className="h-8 w-8 rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600 transition-smooth"
               onClick={(e) => {
                 e.stopPropagation()
                 setShowActions(!showActions)
@@ -328,9 +364,10 @@ export default function PaletteCard({ palette, isReadOnly }: PaletteCardProps) {
                 onCopy={handleCopyColors}
                 onExport={handleExport}
                 onExportPNG={handleExportPNG}
+                onExportSVG={handleExportSVG}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
-                onShare={handleShare} // Pass the new handleShare function
+                onShare={handleShare}
                 isReadOnly={isReadOnly}
               />
             )}
@@ -343,7 +380,6 @@ export default function PaletteCard({ palette, isReadOnly }: PaletteCardProps) {
           onClose={() => setIsEditModalOpen(false)}
           palette={palette}
           onUpdated={() => {
-            // Optionally refresh palettes or show a success message
             toast.success('Palette updated successfully!');
           }}
         />
@@ -358,4 +394,3 @@ export default function PaletteCard({ palette, isReadOnly }: PaletteCardProps) {
     </div>
   )
 }
-

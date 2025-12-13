@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPersonalizedFeed = exports.getGlobalFeed = exports.createActivity = void 0;
+exports.deleteActivity = exports.getPersonalizedFeed = exports.getGlobalFeed = exports.createActivity = void 0;
 const client_1 = require("@prisma/client");
 const errorHandler_1 = require("../middleware/errorHandler");
 const prisma = new client_1.PrismaClient();
@@ -143,4 +143,23 @@ const getPersonalizedFeed = async (userId, limit = 20, offset = 0) => {
     return parsedActivities;
 };
 exports.getPersonalizedFeed = getPersonalizedFeed;
+const deleteActivity = async (activityId, userId) => {
+    // Find the activity first
+    const activity = await prisma.activity.findUnique({
+        where: { id: activityId },
+    });
+    if (!activity) {
+        throw (0, errorHandler_1.createError)('Activity not found', 404);
+    }
+    // Only allow the user who created the activity to delete it
+    if (activity.userId !== userId) {
+        throw (0, errorHandler_1.createError)('Unauthorized to delete this activity', 403);
+    }
+    // Delete the activity
+    await prisma.activity.delete({
+        where: { id: activityId },
+    });
+    return { message: 'Activity deleted successfully' };
+};
+exports.deleteActivity = deleteActivity;
 //# sourceMappingURL=activityService.js.map

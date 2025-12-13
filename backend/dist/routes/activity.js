@@ -63,5 +63,17 @@ router.get('/me', auth_1.authenticateToken, async (req, res, next) => {
         next(error);
     }
 });
+// Delete an activity (only the owner can delete)
+router.delete('/:activityId', auth_1.authenticateToken, async (req, res, next) => {
+    try {
+        const { activityId } = req.params;
+        const userId = req.user.id;
+        const result = await activityController.deleteActivity(activityId, userId);
+        res.json(result);
+    }
+    catch (error) {
+        next(error);
+    }
+});
 exports.default = router;
 //# sourceMappingURL=activity.js.map

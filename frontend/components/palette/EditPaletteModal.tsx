@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { X, Plus, Palette as PaletteIcon } from 'lucide-react'
+import { X, Plus, Palette as PaletteIcon, Pencil } from 'lucide-react'
 import { ChromePicker } from 'react-color'
 import { usePaletteActions } from '@/hooks/usePaletteActions'
 import { usePaletteStore, Palette } from '@/store/paletteStore'
 import { cn } from '@/lib/utils'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
 interface EditPaletteModalProps {
   isOpen: boolean
@@ -88,97 +90,105 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
   if (!isOpen || !palette) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <Card className="border-0 shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-2xl font-bold text-neutral-900">
-              Edit Palette
-            </CardTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}
-            className='hover:bg-[#14b8a6] hover:text-white'
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-scale-in">
+      <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20">
+        <Card className="border-0 shadow-none bg-transparent">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-neutral-100">
+            <div>
+              <div className="flex items-center space-x-2">
+                <CardTitle className="text-2xl font-bold text-neutral-900">
+                  Edit Palette
+                </CardTitle>
+                <Pencil className="h-5 w-5 text-purple-500" />
+              </div>
+              <p className="text-sm text-neutral-500 mt-1">Update your color palette</p>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onClose}
+              className="hover:bg-neutral-100 rounded-xl transition-smooth"
             >
-              <X className="h-6 w-6 text" />
+              <X className="h-5 w-5" />
             </Button>
           </CardHeader>
           
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 pt-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Palette Name */}
               <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-medium text-neutral-700">
+                <Label htmlFor="editName" className="text-neutral-700">
                   Palette Name *
-                </label>
+                </Label>
                 <Input
-                  id="name"
+                  id="editName"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter palette name"
                   required
+                  className="h-11 rounded-xl border-neutral-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 transition-smooth"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <label htmlFor="description" className="text-sm font-medium text-neutral-700">
+                <Label htmlFor="editDescription" className="text-neutral-700">
                   Description
-                </label>
+                </Label>
                 <Input
-                  id="description"
+                  id="editDescription"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Optional description"
+                  className="h-11 rounded-xl border-neutral-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-300 transition-smooth"
                 />
               </div>
 
               {/* Category */}
               <div className="space-y-2">
-                <label htmlFor="category" className="text-sm font-medium text-neutral-700">
+                <Label htmlFor="editCategory" className="text-neutral-700">
                   Category
-                </label>
+                </Label>
                 <Select onValueChange={setCategory} value={category}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full h-11 rounded-xl border-neutral-200">
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl">
                     {categories.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      <SelectItem key={cat} value={cat} className="rounded-lg">{cat}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Make Public */}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="isPublic"
+              {/* Make Public - Using Switch component */}
+              <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50/50 to-teal-50/50 rounded-xl border border-purple-100/50">
+                <div className="space-y-0.5">
+                  <Label htmlFor="editIsPublic" className="text-neutral-700">
+                    Make Public
+                  </Label>
+                  <p className="text-xs text-neutral-500">Share this palette with the community</p>
+                </div>
+                <Switch
+                  id="editIsPublic"
                   checked={isPublic}
-                  onChange={(e) => setIsPublic(e.target.checked)}
+                  onCheckedChange={setIsPublic}
                 />
-                <label
-                  htmlFor="isPublic"
-                  className="text-sm font-medium text-neutral-700"
-                >
-                  Make this palette public
-                </label>
               </div>
 
               {/* Colors */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium text-neutral-700">
-                    Colors ({colors.length}/10)
-                  </label>
+                  <Label className="text-neutral-700">Colors ({colors.length}/10)</Label>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={addColor}
                     disabled={colors.length >= 10}
-                    className="text-xs"
+                    className="btn-gradient text-white border-0 rounded-xl shadow-sm"
                   >
-                    <Plus className="h-3 w-3 mr-1" />
+                    <Plus className="h-4 w-4 mr-1" />
                     Add Color
                   </Button>
                 </div>
@@ -188,10 +198,10 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
                     <div key={index} className="space-y-2">
                       <div
                         className={cn(
-                          "w-full h-16 rounded-lg border-2 cursor-pointer transition-all",
+                          "w-full h-16 rounded-xl cursor-pointer transition-all duration-200",
                           activeColorIndex === index
-                            ? "border-[#8b5cf6] shadow-md"
-                            : "border-gray-200 hover:border-gray-300"
+                            ? "ring-4 ring-purple-500/30 shadow-lg scale-105"
+                            : "ring-2 ring-neutral-200 hover:ring-neutral-300 hover:shadow-md"
                         )}
                         style={{ backgroundColor: color }}
                         onClick={() => {
@@ -200,7 +210,7 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
                         }}
                       />
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-mono text-neutral-600">
+                        <span className="text-xs font-mono text-neutral-500">
                           {color}
                         </span>
                         {colors.length > 1 && (
@@ -209,7 +219,7 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
                             variant="ghost"
                             size="sm"
                             onClick={() => removeColor(index)}
-                            className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            className="h-6 w-6 p-0 text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-smooth"
                           >
                             <X className="h-3 w-3" />
                           </Button>
@@ -220,21 +230,20 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
                 </div>
 
                 {showColorPicker && (
-                  <div className="space-y-3">
+                  <div className="space-y-3 animate-scale-in">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-neutral-700">
-                        Color Picker
-                      </label>
+                      <Label className="text-neutral-700">Color Picker</Label>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => setShowColorPicker(false)}
+                        className="rounded-xl transition-smooth"
                       >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                    <div className="flex justify-center bg-white p-4 rounded-lg border">
+                    <div className="flex justify-center bg-neutral-50 p-4 rounded-xl border border-neutral-100">
                       <ChromePicker
                         color={colors[activeColorIndex]}
                         onChange={handleColorChange}
@@ -246,27 +255,30 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
               </div>
 
               {/* Submit Button */}
-              <div className="flex gap-3 pt-6">
+              <div className="flex gap-3 pt-4 border-t border-neutral-100">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={onClose}
-                  className="flex-1"
+                  className="flex-1 rounded-xl border-neutral-200 hover:bg-neutral-50 transition-smooth"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={isUpdating || !name.trim() || colors.length === 0}
-                  className="flex-1 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white"
+                  className="flex-1 btn-gradient text-white rounded-xl shadow-lg shadow-purple-500/20"
                 >
                   {isUpdating ? (
                     <>
-                      <PaletteIcon className="h-4 w-4 mr-2 animate-spin" />
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white mr-2"></div>
                       Updating...
                     </>
                   ) : (
-                    'Update Palette'
+                    <>
+                      <PaletteIcon className="h-4 w-4 mr-2" />
+                      Update Palette
+                    </>
                   )}
                 </Button>
               </div>

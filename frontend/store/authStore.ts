@@ -16,9 +16,11 @@ interface AuthState {
   user: User | null
   token: string | null
   isAuthenticated: boolean
+  hasHydrated: boolean
   login: (user: User, token: string) => void
   logout: () => void
   updateUser: (user: Partial<User>) => void
+  setHasHydrated: (state: boolean) => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -27,7 +29,8 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      
+      hasHydrated: false,
+
       login: (user: User, token: string) => {
         // Ensure backward compatibility for users without _count
         const userWithDefaults = {
@@ -37,14 +40,14 @@ export const useAuthStore = create<AuthState>()(
             following: 0
           }
         }
-        
+
         set({
           user: userWithDefaults,
           token,
           isAuthenticated: true,
         })
       },
-      
+
       logout: () => {
         set({
           user: null,
@@ -52,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: false,
         })
       },
-      
+
       updateUser: (userData: Partial<User>) => {
         const currentUser = get().user
         if (currentUser) {
@@ -60,6 +63,10 @@ export const useAuthStore = create<AuthState>()(
             user: { ...currentUser, ...userData },
           })
         }
+      },
+
+      setHasHydrated: (state: boolean) => {
+        set({ hasHydrated: state })
       },
     }),
     {
@@ -69,6 +76,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        // Don't persist hasHydrated - it's runtime only
       }),
       version: 1,
       migrate: (persistedState: unknown, version: number) => {
@@ -81,6 +89,10 @@ export const useAuthStore = create<AuthState>()(
           }
         }
         return state
+      },
+      onRehydrateStorage: () => (state) => {
+        // Called when rehydration finishes
+        state?.setHasHydrated(true)
       },
     }
   )
