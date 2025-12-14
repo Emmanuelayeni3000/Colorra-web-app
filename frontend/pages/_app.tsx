@@ -1,5 +1,6 @@
 import type { AppProps } from 'next/app'
 import { Inter, DM_Sans } from 'next/font/google'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { Toaster } from 'sonner'
 import '../styles/globals.css'
 
@@ -14,17 +15,21 @@ const dmSans = DM_Sans({
 })
 
 export default function App({ Component, pageProps }: AppProps) {
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
+
   return (
-    <div className={`${inter.variable} ${dmSans.variable} font-sans`}>
-      <Component {...pageProps} />
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          classNames: {
-            actionButton: 'bg-[#14b8a6] text-white',
-          },
-        }}
-      />
-    </div>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <div className={`${inter.variable} ${dmSans.variable} font-sans`}>
+        <Component {...pageProps} />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            classNames: {
+              actionButton: 'bg-[#14b8a6] text-white',
+            },
+          }}
+        />
+      </div>
+    </GoogleOAuthProvider>
   )
 }

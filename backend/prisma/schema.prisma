@@ -17,6 +17,7 @@ model User {
   password                  String
   name                      String?
   avatarUrl                 String?
+  googleId                  String?   @unique // Google OAuth user ID
   resetToken                String?
   resetTokenExpiry          DateTime?
   emailVerified             Boolean   @default(false)

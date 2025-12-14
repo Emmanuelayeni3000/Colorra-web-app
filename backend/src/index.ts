@@ -3,6 +3,7 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import path from 'path'
 import authRoutes from './routes/auth'
+import googleAuthRoutes from './routes/googleAuth'
 import paletteRoutes from './routes/palettes'
 import profileRoutes from './routes/profile'
 import searchRoutes from './routes/search'
@@ -51,6 +52,7 @@ app.use('/uploads', express.static(uploadsPath))
 
 // Routes
 app.use('/api/auth', authRoutes)
+app.use('/api/auth', googleAuthRoutes) // Google OAuth routes
 app.use('/api/palettes', paletteRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/search', searchRoutes)
