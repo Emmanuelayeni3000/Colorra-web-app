@@ -8,6 +8,7 @@ const cors_1 = __importDefault(require("cors"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 const auth_1 = __importDefault(require("./routes/auth"));
+const googleAuth_1 = __importDefault(require("./routes/googleAuth"));
 const palettes_1 = __importDefault(require("./routes/palettes"));
 const profile_1 = __importDefault(require("./routes/profile"));
 const search_1 = __importDefault(require("./routes/search"));
@@ -48,6 +49,7 @@ console.log('Serving static files from:', uploadsPath);
 app.use('/uploads', express_1.default.static(uploadsPath));
 // Routes
 app.use('/api/auth', auth_1.default);
+app.use('/api/auth', googleAuth_1.default); // Google OAuth routes
 app.use('/api/palettes', palettes_1.default);
 app.use('/api/profile', profile_1.default);
 app.use('/api/search', search_1.default);

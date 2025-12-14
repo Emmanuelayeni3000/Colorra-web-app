@@ -213,7 +213,7 @@ router.post('/signin', [
         // Generate JWT
         const token = jsonwebtoken_1.default.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
         // Get avatarUrl separately using raw query
-        const avatarResult = await prisma.$queryRaw `SELECT avatarUrl FROM users WHERE id = ${user.id}`;
+        const avatarResult = await prisma.$queryRaw `SELECT "avatarUrl" FROM users WHERE id = ${user.id}`;
         const avatarUrl = avatarResult[0]?.avatarUrl || null;
         res.json({
             message: 'Login successful',
