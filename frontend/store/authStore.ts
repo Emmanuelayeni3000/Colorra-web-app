@@ -6,6 +6,7 @@ export interface User {
   email: string
   name?: string
   avatarUrl?: string
+  hasSeenTutorial?: boolean
   _count?: {
     followers: number
     following: number
@@ -21,6 +22,7 @@ interface AuthState {
   logout: () => void
   updateUser: (user: Partial<User>) => void
   setHasHydrated: (state: boolean) => void
+  setTutorialCompleted: () => void
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -67,6 +69,15 @@ export const useAuthStore = create<AuthState>()(
 
       setHasHydrated: (state: boolean) => {
         set({ hasHydrated: state })
+      },
+
+      setTutorialCompleted: () => {
+        const currentUser = get().user
+        if (currentUser) {
+          set({
+            user: { ...currentUser, hasSeenTutorial: true }
+          })
+        }
       },
     }),
     {

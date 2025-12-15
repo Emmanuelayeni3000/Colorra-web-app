@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import SEO, { pageSEO } from '@/components/SEO'
 
 const categories = [
   { name: "Warm", colors: ["#FF6B6B", "#FF8E53", "#FFD93D"], description: "Cozy and energetic", icon: "🔥" },
@@ -119,6 +120,8 @@ export default function ExplorePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-purple-50/30 to-teal-50/30">
+      <SEO {...pageSEO.explore} />
+      
       {/* Header - Glassmorphism */}
       <header className="sticky top-0 z-50 glass-dark border-b border-white/20 shadow-glass">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">

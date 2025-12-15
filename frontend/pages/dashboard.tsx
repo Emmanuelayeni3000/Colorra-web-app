@@ -11,16 +11,44 @@ import { usePaletteActions } from '@/hooks/usePaletteActions'
 import Sidebar from '@/components/layout/Sidebar'
 import PaletteCard from '@/components/palette/PaletteCard'
 import CreatePaletteModal from '@/components/palette/CreatePaletteModal'
+import OnboardingTutorial from '@/components/onboarding/OnboardingTutorial'
+import { apiClient } from '@/lib/api'
+import SEO, { pageSEO } from '@/components/SEO'
 
 export default function DashboardPage() {
   const router = useRouter()
-  const { isAuthenticated, hasHydrated } = useAuthStore()
+  const { isAuthenticated, hasHydrated, user, setTutorialCompleted } = useAuthStore()
   const { palettes, getFavorites, isLoading } = usePaletteStore()
   const { loadPalettes } = usePaletteActions()
   
   const [searchTerm, setSearchTerm] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [showTutorial, setShowTutorial] = useState(false)
+
+  // Check if user needs to see the tutorial
+  useEffect(() => {
+    if (hasHydrated && isAuthenticated && user && user.hasSeenTutorial === false) {
+      setShowTutorial(true)
+    }
+  }, [hasHydrated, isAuthenticated, user])
+
+  // Handle tutorial completion
+  const handleTutorialComplete = async () => {
+    try {
+      await apiClient.completeTutorial()
+      setTutorialCompleted()
+      setShowTutorial(false)
+    } catch (error) {
+      console.error('Failed to mark tutorial as complete:', error)
+      // Still hide the tutorial even if API fails
+      setShowTutorial(false)
+    }
+  }
+
+  const handleTutorialSkip = () => {
+    handleTutorialComplete()
+  }
 
   // Wait for hydration before checking auth and redirecting
   useEffect(() => {
@@ -67,6 +95,16 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-neutral-50 via-purple-50/30 to-teal-50/30">
+      <SEO {...pageSEO.dashboard} />
+      
+      {/* Onboarding Tutorial */}
+      {showTutorial && (
+        <OnboardingTutorial 
+          onComplete={handleTutorialComplete}
+          onSkip={handleTutorialSkip}
+        />
+      )}
+
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 

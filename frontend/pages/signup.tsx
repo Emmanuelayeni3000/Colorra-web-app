@@ -10,6 +10,7 @@ import { Eye, EyeOff, ArrowRight, Check, Palette, Sparkles, Users, Download, Mai
 import { useAuthStore } from '@/store/authStore'
 import { apiClient } from '@/lib/api'
 import { AxiosError } from 'axios'
+import SEO, { pageSEO } from '@/components/SEO'
 
 export default function SignUpPage() {
   const router = useRouter()

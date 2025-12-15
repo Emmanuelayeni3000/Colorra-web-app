@@ -7,6 +7,7 @@ import { SharedPalettesList } from '@/components/SharedPalettesList';
 import { Button } from '@/components/ui/button';
 import { Menu, Users } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import SEO, { pageSEO } from '@/components/SEO';
 
 const SharedPalettesPage: NextPage = () => {
   const router = useRouter();

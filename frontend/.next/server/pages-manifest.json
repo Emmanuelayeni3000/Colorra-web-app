@@ -1,21 +1,7 @@
 {
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
-  "/activity": "pages/activity.html",
-  "/dashboard": "pages/dashboard.html",
-  "/explore": "pages/explore.html",
-  "/favorites": "pages/favorites.html",
-  "/forgot-password": "pages/forgot-password.html",
-  "/palettes/[id]": "pages/palettes/[id].html",
-  "/profile": "pages/profile.html",
-  "/reset-password": "pages/reset-password.html",
-  "/shared": "pages/shared.html",
-  "/saved": "pages/saved.html",
-  "/signin": "pages/signin.html",
-  "/signup": "pages/signup.html",
-  "/users/[id]": "pages/users/[id].html",
-  "/verify-email": "pages/verify-email.html",
-  "/": "pages/index.js",
   "/_document": "pages/_document.js",
-  "/404": "pages/404.html"
+  "/": "pages/index.js",
+  "/signup": "pages/signup.js"
 }

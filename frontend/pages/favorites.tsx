@@ -9,6 +9,7 @@ import { usePaletteStore } from '@/store/paletteStore'
 import { usePaletteActions } from '@/hooks/usePaletteActions'
 import Sidebar from '@/components/layout/Sidebar'
 import PaletteCard from '@/components/palette/PaletteCard'
+import SEO, { pageSEO } from '@/components/SEO'
 
 export default function FavoritesPage() {
   const router = useRouter()

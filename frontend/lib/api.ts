@@ -95,6 +95,15 @@ class ApiClient {
     }
   }
 
+  async completeTutorial() {
+    try {
+      const response = await this.client.patch('/auth/tutorial-complete')
+      return response.data
+    } catch (error) {
+      throw error
+    }
+  }
+
   // Palette endpoints
   async getPalettes(favorites?: boolean, searchTerm?: string) {
     try {

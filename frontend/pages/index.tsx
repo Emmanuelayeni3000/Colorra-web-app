@@ -23,6 +23,7 @@ import { GetServerSideProps } from 'next'
 import { apiClient } from '@/lib/api'
 import PublicPaletteCard from '@/components/palette/PublicPaletteCard'
 import { Palette } from '@/store/paletteStore'
+import SEO, { pageSEO } from '@/components/SEO'
 
 interface HomePageProps {
   publicPalettes: Palette[];
@@ -136,6 +137,8 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
 
   return (
     <div className="min-h-screen bg-white overflow-hidden">
+      <SEO {...pageSEO.home} />
+      
       {/* Navigation */}
       <motion.nav 
         initial={{ y: -100, opacity: 0 }}

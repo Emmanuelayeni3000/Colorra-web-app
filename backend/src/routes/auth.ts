@@ -5,6 +5,7 @@ import { body, validationResult } from 'express-validator'
 import { PrismaClient } from '@prisma/client'
 import { createError } from '../middleware/errorHandler'
 import { sendVerificationEmail } from '../services/emailService'
+import { authenticateToken } from '../middleware/auth'
 import { v4 as uuidv4 } from 'uuid'
 
 const router = express.Router()
@@ -262,9 +263,32 @@ router.post('/signin',
           name: user.name,
           avatarUrl,
           emailVerified: user.emailVerified,
+          hasSeenTutorial: user.hasSeenTutorial,
           _count: user._count
         },
         token
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+// Mark tutorial as completed
+router.patch('/tutorial-complete',
+  authenticateToken,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = (req as any).user?.id
+
+      await prisma.user.update({
+        where: { id: userId },
+        data: { hasSeenTutorial: true }
+      })
+
+      res.json({
+        message: 'Tutorial marked as complete',
+        hasSeenTutorial: true
       })
     } catch (error) {
       next(error)
