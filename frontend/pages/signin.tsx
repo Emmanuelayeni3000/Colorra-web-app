@@ -10,7 +10,6 @@ import { Eye, EyeOff, ArrowRight, Mail, RefreshCw } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { apiClient } from '@/lib/api'
 import { AxiosError } from 'axios'
-import SEO, { pageSEO } from '@/components/SEO'
 
 export default function SignInPage() {
   const router = useRouter()

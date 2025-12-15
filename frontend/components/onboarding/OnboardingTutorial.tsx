@@ -6,7 +6,6 @@ import {
   ChevronRight,
   ChevronLeft,
   Home,
-  Palette,
   Heart,
   Star,
   Users,
@@ -81,7 +80,7 @@ const tutorialSteps = [
           </div>
           <div>
             <p className="font-medium text-neutral-800 text-sm">Saved Palettes</p>
-            <p className="text-xs text-neutral-500">Palettes you've bookmarked from explore</p>
+            <p className="text-xs text-neutral-500">Palettes you&apos;ve bookmarked from explore</p>
           </div>
         </div>
         <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50/50 hover:bg-blue-50 transition-colors">

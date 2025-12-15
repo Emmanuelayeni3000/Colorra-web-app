@@ -9,7 +9,6 @@ import { usePaletteStore } from '@/store/paletteStore'
 import { usePaletteActions } from '@/hooks/usePaletteActions'
 import Sidebar from '@/components/layout/Sidebar'
 import PublicPaletteCard from '@/components/palette/PublicPaletteCard'
-import SEO, { pageSEO } from '@/components/SEO'
 
 export default function SavedPalettesPage() {
   const router = useRouter()

@@ -7,7 +7,6 @@ import { usePaletteStore } from '@/store/paletteStore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Sidebar from '@/components/layout/Sidebar';
 import ActivityFeed from '@/components/ActivityFeed';
-import SEO, { pageSEO } from '@/components/SEO';
 
 export default function ActivityPage() {
   const router = useRouter();

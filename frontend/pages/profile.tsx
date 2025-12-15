@@ -10,7 +10,6 @@ import { usePaletteStore } from '@/store/paletteStore'
 import { apiClient } from '@/lib/api'
 import Sidebar from '@/components/layout/Sidebar'
 import toast from 'react-hot-toast'
-import SEO, { pageSEO } from '@/components/SEO'
 
 export default function ProfilePage() {
   const router = useRouter()
