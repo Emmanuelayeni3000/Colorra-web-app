@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [avatarKey, setAvatarKey] = useState(Date.now()) // Key to force avatar refresh
   const [editForm, setEditForm] = useState({
     name: user?.name || '',
     email: user?.email || ''
@@ -85,6 +86,9 @@ export default function ProfilePage() {
       updateUser({
         avatarUrl: data.avatarUrl
       })
+      
+      // Force avatar image refresh with new key
+      setAvatarKey(Date.now())
 
       toast.success('Avatar updated successfully!')
     } catch (error) {
@@ -196,9 +200,10 @@ export default function ProfilePage() {
                         {user?.avatarUrl ? (
                           <>
                             <Image 
+                              key={avatarKey}
                               src={user.avatarUrl.startsWith('http') 
                                 ? user.avatarUrl 
-                                : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${user.avatarUrl}?t=${Date.now()}`} 
+                                : `${(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace('/api', '')}${user.avatarUrl}?t=${avatarKey}`} 
                               alt="Profile" 
                               width={80}
                               height={80}

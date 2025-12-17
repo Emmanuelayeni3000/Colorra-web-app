@@ -516,13 +516,13 @@ export default function SignUpPage() {
             </div>
 
             {/* Google Sign-Up */}
-            <div className="flex justify-center">
+            <div className="w-full flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 theme="outline"
                 size="large"
-                width="100%"
+                width={350}
                 text="signup_with"
                 shape="rectangular"
               />

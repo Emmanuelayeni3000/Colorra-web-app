@@ -117,8 +117,8 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-scale-in">
-      <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20 animate-scale-in">
         <Card className="border-0 shadow-none bg-transparent">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-neutral-100">
             <div>
@@ -205,7 +205,7 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
 
               {/* Color Generation Options */}
               <div className="space-y-3">
-                <Label className="text-neutral-700">Generate Colors</Label>
+                <span className="text-sm font-medium text-neutral-700">Generate Colors</span>
                 <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
@@ -243,7 +243,7 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
               {/* Color Swatches */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label className="text-neutral-700">Colors ({colors.length}/10)</Label>
+                  <span className="text-sm font-medium text-neutral-700">Colors ({colors.length}/10)</span>
                   <Button
                     type="button"
                     variant="outline"
@@ -298,7 +298,7 @@ export default function CreatePaletteModal({ isOpen, onClose, onCreated }: Creat
               {showColorPicker && (
                 <div className="space-y-3 animate-scale-in">
                   <div className="flex items-center justify-between">
-                    <Label className="text-neutral-700">Color Picker</Label>
+                    <span className="text-sm font-medium text-neutral-700">Color Picker</span>
                     <Button
                       type="button"
                       variant="ghost"

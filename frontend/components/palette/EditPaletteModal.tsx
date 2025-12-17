@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -24,6 +25,10 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
   const { editPalette } = usePaletteActions()
   const { isUpdating } = usePaletteStore()
   
+  // Debug: Track render count
+  const renderCount = useRef(0)
+  renderCount.current++
+  
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [colors, setColors] = useState<string[]>([])
@@ -32,7 +37,22 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
   const [activeColorIndex, setActiveColorIndex] = useState(0)
   const [showColorPicker, setShowColorPicker] = useState(false)
 
+  // Debug: Log every render
+  console.log(`[EditPaletteModal] Render #${renderCount.current}`, {
+    isOpen,
+    paletteId: palette?.id,
+    isUpdating,
+    name,
+    colorsCount: colors.length,
+    activeColorIndex,
+    showColorPicker
+  })
+
   useEffect(() => {
+    console.log('[EditPaletteModal] useEffect triggered - palette changed', { 
+      paletteId: palette?.id,
+      paletteName: palette?.name 
+    })
     if (palette) {
       setName(palette.name)
       setDescription(palette.description || '')
@@ -43,6 +63,7 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
   }, [palette])
 
   const handleColorChange = (color: { hex: string }) => {
+    console.log('[EditPaletteModal] handleColorChange', { newColor: color.hex, activeColorIndex })
     const newColors = [...colors]
     newColors[activeColorIndex] = color.hex
     setColors(newColors)
@@ -89,9 +110,9 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
 
   if (!isOpen || !palette) return null
 
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-scale-in">
-      <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-elevated w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-white/20 animate-scale-in">
         <Card className="border-0 shadow-none bg-transparent">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-neutral-100">
             <div>
@@ -179,7 +200,7 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
               {/* Colors */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Label className="text-neutral-700">Colors ({colors.length}/10)</Label>
+                  <span className="text-sm font-medium text-neutral-700">Colors ({colors.length}/10)</span>
                   <Button
                     type="button"
                     variant="outline"
@@ -232,7 +253,7 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
                 {showColorPicker && (
                   <div className="space-y-3 animate-scale-in">
                     <div className="flex items-center justify-between">
-                      <Label className="text-neutral-700">Color Picker</Label>
+                      <span className="text-sm font-medium text-neutral-700">Color Picker</span>
                       <Button
                         type="button"
                         variant="ghost"
@@ -286,6 +307,7 @@ export default function EditPaletteModal({ isOpen, onClose, onUpdated, palette }
           </CardContent>
         </Card>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }

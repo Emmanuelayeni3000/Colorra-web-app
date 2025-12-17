@@ -379,13 +379,13 @@ export default function SignInPage() {
             </div>
 
             {/* Google Sign-In */}
-            <div className="flex justify-center">
+            <div className="w-full flex justify-center">
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
                 onError={handleGoogleError}
                 theme="outline"
                 size="large"
-                width="100%"
+                width={350}
                 text="continue_with"
                 shape="rectangular"
               />
