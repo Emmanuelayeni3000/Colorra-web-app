@@ -24,6 +24,7 @@ import { apiClient } from '@/lib/api'
 import PublicPaletteCard from '@/components/palette/PublicPaletteCard'
 import { Palette } from '@/store/paletteStore'
 import SEO, { pageSEO } from '@/components/SEO'
+import FeedbackSection from '@/components/FeedbackSection'
 
 interface HomePageProps {
   publicPalettes: Palette[];
@@ -482,6 +483,9 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
         </section>
       )}
 
+      {/* Feedback Section */}
+      <FeedbackSection />
+
       {/* Final CTA Section */}
       <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-700" />
@@ -562,7 +566,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             
             <div className="text-center md:text-right">
               <p className="text-sm">
-                Developed with ❤️ by <span className="text-white font-medium">Emmanuel Ayeni</span>
+                Developed with ❤️ by <a href="https://eawebcraft.vercel.app" target="_blank" rel="noopener noreferrer" className="text-white font-medium hover:text-violet-400 underline underline-offset-2 transition-colors">Emmanuel Ayeni</a>
               </p>
               <p className="text-xs mt-1 text-gray-500">
                 © {new Date().getFullYear()} Colorra. All rights reserved.
