@@ -224,9 +224,9 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Panel - Decorative */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-600 relative overflow-hidden">
+      <div className="hidden md:flex md:w-2/5 lg:w-1/2 bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-600 relative overflow-hidden">
         {/* Animated background shapes */}
         <motion.div 
           className="absolute top-20 -left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl"
@@ -253,26 +253,26 @@ export default function SignUpPage() {
         />
 
         {/* Content */}
-        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-20">
+        <div className="relative z-10 flex flex-col justify-center px-8 lg:px-12 xl:px-20">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="mb-8">
+            <div className="mb-6 lg:mb-8">
               <Image 
                 src="/images/colorra-logo.png" 
                 alt="Colorra Logo" 
-                width={140} 
-                height={45}
-                className="brightness-0 invert opacity-95"
+                width={120} 
+                height={38}
+                className="lg:w-[140px] brightness-0 invert opacity-95"
               />
             </div>
 
-            <h1 className="text-4xl xl:text-5xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-2xl lg:text-4xl xl:text-5xl font-bold text-white mb-4 lg:mb-6 leading-tight">
               Start creating beautiful palettes today
             </h1>
-            <p className="text-lg text-white/80 mb-12 max-w-md">
+            <p className="text-sm lg:text-lg text-white/80 mb-8 lg:mb-12 max-w-md">
               Join thousands of designers and developers who use Colorra to bring their color visions to life.
             </p>
 
@@ -311,7 +311,7 @@ export default function SignUpPage() {
       </div>
 
       {/* Right Panel - Sign Up Form */}
-      <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-teal-50 to-gray-50 lg:bg-gray-50 px-4 sm:px-6 lg:px-8 py-8 sm:py-12 min-h-screen lg:min-h-0 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-b from-teal-50 to-gray-50 md:bg-gray-50 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12 min-h-screen md:min-h-0 overflow-y-auto">
         <motion.div 
           className="max-w-md w-full"
           initial={{ opacity: 0, y: 20 }}
@@ -319,16 +319,16 @@ export default function SignUpPage() {
           transition={{ duration: 0.5 }}
         >
           {/* Mobile Logo */}
-          <div className="lg:hidden text-center mb-6 sm:mb-8">
+          <div className="md:hidden text-center mb-4 sm:mb-6">
             <Link href="/" className="inline-block">
-              <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={32} className="sm:w-[120px]" />
+              <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={90} height={29} className="sm:w-[110px]" />
             </Link>
           </div>
 
           {/* Header */}
-          <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
-            <p className="text-gray-600">
+          <div className="text-center mb-4 sm:mb-6 md:mb-8">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1.5 sm:mb-2">Create your account</h2>
+            <p className="text-sm sm:text-base text-gray-600">
               Already have an account?{' '}
               <Link href="/signin" className="text-teal-600 hover:text-teal-700 font-semibold">
                 Sign in
@@ -337,8 +337,8 @@ export default function SignUpPage() {
           </div>
 
           {/* Form */}
-          <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 sm:p-8 border border-gray-100">
-            <form className="space-y-5" onSubmit={handleSubmit}>
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl shadow-gray-200/50 p-4 sm:p-6 md:p-8 border border-gray-100">
+            <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
               {error && (
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }}
@@ -517,20 +517,22 @@ export default function SignUpPage() {
 
             {/* Google Sign-Up */}
             <div className="w-full flex justify-center">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={handleGoogleError}
-                theme="outline"
-                size="large"
-                width={350}
-                text="signup_with"
-                shape="rectangular"
-              />
+              <div className="w-full max-w-[280px] sm:max-w-[320px] md:max-w-[350px]">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  theme="outline"
+                  size="large"
+                  width={undefined}
+                  text="signup_with"
+                  shape="rectangular"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Bottom link - Desktop */}
-          <p className="hidden lg:block text-center text-sm text-gray-500 mt-8">
+          {/* Bottom link */}
+          <p className="text-center text-xs sm:text-sm text-gray-500 mt-4 sm:mt-6 md:mt-8">
             <Link href="/" className="hover:text-gray-700 transition-colors">
               ← Back to homepage
             </Link>

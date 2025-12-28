@@ -156,16 +156,17 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             >
               <Image src="/images/colorra-logo.png" alt="Colorra Logo" width={100} height={80} />
             </motion.div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link href="/signin">
-                <Button variant="ghost" className="text-gray-700 hover:text-gray-900 font-medium">
+                <Button variant="ghost" className="text-gray-700 hover:text-gray-900 font-medium text-sm sm:text-base px-3 sm:px-4">
                   Sign In
                 </Button>
               </Link>
               <Link href="/signup">
-                <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 font-medium">
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg shadow-violet-500/25 font-medium text-sm sm:text-base px-3 sm:px-4">
+                  <span className="hidden sm:inline">Get Started</span>
+                  <span className="sm:hidden">Start</span>
+                  <ArrowRight className="ml-1 sm:ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -174,13 +175,13 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <section className="relative pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-white to-cyan-50 -z-10" />
         
         {/* Animated gradient orbs */}
         <motion.div 
-          className="absolute top-20 -left-32 w-96 h-96 bg-gradient-to-r from-violet-200 to-purple-200 rounded-full blur-3xl opacity-40"
+          className="absolute top-20 -left-32 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-gradient-to-r from-violet-200 to-purple-200 rounded-full blur-3xl opacity-40"
           animate={{ 
             x: [0, 50, 0],
             y: [0, 30, 0],
@@ -188,7 +189,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
           transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div 
-          className="absolute bottom-0 -right-32 w-96 h-96 bg-gradient-to-r from-cyan-200 to-teal-200 rounded-full blur-3xl opacity-40"
+          className="absolute bottom-0 -right-32 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-gradient-to-r from-cyan-200 to-teal-200 rounded-full blur-3xl opacity-40"
           animate={{ 
             x: [0, -50, 0],
             y: [0, -30, 0],
@@ -205,19 +206,19 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             {/* Badge */}
             <motion.div 
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 bg-violet-100 text-violet-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6"
+              className="inline-flex items-center gap-1.5 sm:gap-2 bg-violet-100 text-violet-700 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6"
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>The Ultimate Color Palette Tool</span>
             </motion.div>
 
             {/* Main headline */}
             <motion.h1 
               variants={fadeInUp}
-              className="text-5xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 sm:mb-6 leading-tight"
             >
               Create, Share & Discover
-              <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-600">
+              <span className="block mt-1 sm:mt-2 text-transparent bg-clip-text bg-gradient-to-r from-violet-600 via-purple-600 to-cyan-600">
                 Beautiful Color Palettes
               </span>
             </motion.h1>
@@ -225,7 +226,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             {/* Subtitle */}
             <motion.p 
               variants={fadeInUp}
-              className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto leading-relaxed"
+              className="text-base sm:text-lg md:text-xl text-gray-600 mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto leading-relaxed px-2 sm:px-0"
             >
               Colorra helps designers, developers, and creatives build stunning color combinations, 
               extract colors from images, and share their work with a global community.
@@ -234,20 +235,20 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             {/* CTA Buttons */}
             <motion.div 
               variants={fadeInUp}
-              className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+              className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 md:mb-16"
             >
               <Link href="/signup">
                 <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
-                  <Button size="lg" className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-6 text-lg shadow-xl shadow-violet-500/30 font-semibold">
+                  <Button size="lg" className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg shadow-xl shadow-violet-500/30 font-semibold w-full sm:w-auto">
                     Start Creating for Free
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                   </Button>
                 </motion.div>
               </Link>
               <Link href="/explore">
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                  <Button variant="outline" size="lg" className="px-8 py-6 text-lg border-gray-300 hover:bg-gray-50 font-medium">
-                    <Eye className="mr-2 h-5 w-5" />
+                  <Button variant="outline" size="lg" className="px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg border-gray-300 hover:bg-gray-50 font-medium w-full sm:w-auto">
+                    <Eye className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                     Explore Palettes
                   </Button>
                 </motion.div>
@@ -261,8 +262,8 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-cyan-500/20 blur-2xl rounded-3xl" />
-                <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
-                  <div className="flex h-32">
+                <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden border border-gray-100">
+                  <div className="flex h-20 sm:h-24 md:h-32">
                     {['#8B5CF6', '#A78BFA', '#14B8A6', '#2DD4BF', '#06B6D4'].map((color, i) => (
                       <motion.div
                         key={color}
@@ -274,14 +275,14 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
                       />
                     ))}
                   </div>
-                  <div className="p-4 flex items-center justify-between">
+                  <div className="p-3 sm:p-4 flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-gray-900">Aurora Dreams</p>
-                      <p className="text-sm text-gray-500">by Colorra Team</p>
+                      <p className="font-semibold text-gray-900 text-sm sm:text-base">Aurora Dreams</p>
+                      <p className="text-xs sm:text-sm text-gray-500">by Colorra Team</p>
                     </div>
-                    <div className="flex items-center gap-3 text-gray-400">
-                      <Heart className="h-5 w-5" />
-                      <Share2 className="h-5 w-5" />
+                    <div className="flex items-center gap-2 sm:gap-3 text-gray-400">
+                      <Heart className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
                   </div>
                 </div>
@@ -292,7 +293,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
       </section>
 
       {/* What is Colorra Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial="hidden"
@@ -303,13 +304,13 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
           >
             <motion.h2 
               variants={fadeInUp}
-              className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4"
             >
               What is Colorra?
             </motion.h2>
             <motion.p 
               variants={fadeInUp}
-              className="text-xl text-gray-600 max-w-3xl mx-auto"
+              className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-2 sm:px-0"
             >
               Colorra is a modern color palette platform that combines powerful creation tools 
               with a vibrant community of designers and developers.
@@ -321,7 +322,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
             variants={staggerContainer}
-            className="grid md:grid-cols-2 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"
           >
             {mainFeatures.map((feature, index) => (
               <motion.div
@@ -331,16 +332,16 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
                 transition={{ type: "spring", stiffness: 300 }}
               >
                 <Card className="h-full bg-white border-0 shadow-lg shadow-gray-200/50 hover:shadow-xl transition-all duration-300 overflow-hidden group">
-                  <CardContent className="p-8">
-                    <div className="flex items-start gap-5">
-                      <div className={`flex-shrink-0 w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center text-white shadow-lg`}>
+                  <CardContent className="p-4 sm:p-6 md:p-8">
+                    <div className="flex items-start gap-3 sm:gap-4 md:gap-5">
+                      <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-gradient-to-br ${feature.gradient} rounded-lg sm:rounded-xl flex items-center justify-center text-white shadow-lg`}>
                         {feature.icon}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-violet-600 transition-colors">
+                        <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1 sm:mb-2 group-hover:text-violet-600 transition-colors">
                           {feature.title}
                         </h3>
-                        <p className="text-gray-600 leading-relaxed">
+                        <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
                           {feature.description}
                         </p>
                       </div>
@@ -354,7 +355,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
       </section>
 
       {/* Social Features Section */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial="hidden"
@@ -363,19 +364,19 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             variants={staggerContainer}
             className="text-center mb-16"
           >
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-cyan-100 text-cyan-700 px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-              <Users className="h-4 w-4" />
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-1.5 sm:gap-2 bg-cyan-100 text-cyan-700 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6">
+              <Users className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>Community Powered</span>
             </motion.div>
             <motion.h2 
               variants={fadeInUp}
-              className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4"
             >
               More Than Just a Tool
             </motion.h2>
             <motion.p 
               variants={fadeInUp}
-              className="text-xl text-gray-600 max-w-3xl mx-auto"
+              className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto px-2 sm:px-0"
             >
               Join a thriving community of color enthusiasts. Share your creations, 
               discover inspiration, and connect with fellow designers.
@@ -387,22 +388,22 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
             variants={staggerContainer}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-12 md:mb-16"
           >
             {socialFeatures.map((feature, index) => (
               <motion.div
                 key={index}
                 variants={scaleIn}
-                className="text-center p-6"
+                className="text-center p-3 sm:p-4 md:p-6"
               >
                 <motion.div 
-                  className="w-16 h-16 bg-gradient-to-br from-violet-100 to-cyan-100 rounded-2xl flex items-center justify-center text-violet-600 mx-auto mb-4"
+                  className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-br from-violet-100 to-cyan-100 rounded-xl sm:rounded-2xl flex items-center justify-center text-violet-600 mx-auto mb-3 sm:mb-4 [&>svg]:h-6 [&>svg]:w-6 sm:[&>svg]:h-7 sm:[&>svg]:w-7 md:[&>svg]:h-8 md:[&>svg]:w-8"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                 >
                   {feature.icon}
                 </motion.div>
-                <h3 className="font-bold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-sm text-gray-600">{feature.description}</p>
+                <h3 className="font-bold text-gray-900 mb-1 sm:mb-2 text-sm sm:text-base">{feature.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-600">{feature.description}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -413,14 +414,14 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeInUp}
-            className="flex justify-center gap-12 md:gap-20"
+            className="flex justify-center gap-6 sm:gap-10 md:gap-16 lg:gap-20"
           >
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <p className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-cyan-600">
+                <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-cyan-600">
                   {stat.value}
                 </p>
-                <p className="text-gray-600 mt-1">{stat.label}</p>
+                <p className="text-xs sm:text-sm md:text-base text-gray-600 mt-1">{stat.label}</p>
               </div>
             ))}
           </motion.div>
@@ -429,7 +430,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
 
       {/* Community Palettes Preview */}
       {publicPalettes.length > 0 && (
-        <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-violet-50/30">
+        <section className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-violet-50/30">
           <div className="max-w-7xl mx-auto">
             <motion.div 
               initial="hidden"
@@ -440,13 +441,13 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             >
               <motion.h2 
                 variants={fadeInUp}
-                className="text-4xl md:text-5xl font-bold text-gray-900 mb-4"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4"
               >
                 Fresh From the Community
               </motion.h2>
               <motion.p 
                 variants={fadeInUp}
-                className="text-xl text-gray-600"
+                className="text-base sm:text-lg md:text-xl text-gray-600 px-2 sm:px-0"
               >
                 Explore the latest palettes shared by our creative community
               </motion.p>
@@ -457,7 +458,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
               whileInView="visible"
               viewport={{ once: true, amount: 0.1 }}
               variants={staggerContainer}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-10 md:mb-12"
             >
               {publicPalettes.map((palette) => (
                 <motion.div key={palette.id} variants={fadeInUp}>
@@ -472,9 +473,9 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             >
               <Link href="/explore">
                 <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }} className="inline-block">
-                  <Button size="lg" className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-8 py-6 text-lg shadow-xl shadow-violet-500/30 font-semibold">
+                  <Button size="lg" className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg shadow-xl shadow-violet-500/30 font-semibold">
                     View All Palettes
-                    <ArrowRight className="ml-2 h-5 w-5" />
+                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                   </Button>
                 </motion.div>
               </Link>
@@ -487,17 +488,17 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
       <FeedbackSection />
 
       {/* Final CTA Section */}
-      <section className="py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <section className="py-16 sm:py-24 md:py-32 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-purple-700" />
         
         {/* Decorative elements */}
         <motion.div 
-          className="absolute top-10 left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"
+          className="absolute top-10 left-10 w-32 sm:w-48 md:w-64 h-32 sm:h-48 md:h-64 bg-white/10 rounded-full blur-3xl"
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 8, repeat: Infinity }}
         />
         <motion.div 
-          className="absolute bottom-10 right-10 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl"
+          className="absolute bottom-10 right-10 w-48 sm:w-72 md:w-96 h-48 sm:h-72 md:h-96 bg-cyan-400/10 rounded-full blur-3xl"
           animate={{ scale: [1.2, 1, 1.2] }}
           transition={{ duration: 6, repeat: Infinity }}
         />
@@ -509,14 +510,14 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             viewport={{ once: true, amount: 0.5 }}
             variants={staggerContainer}
           >
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 bg-white/20 text-white px-4 py-1.5 rounded-full text-sm font-medium mb-6 backdrop-blur-sm">
-              <Zap className="h-4 w-4" />
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/20 text-white px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium mb-4 sm:mb-6 backdrop-blur-sm">
+              <Zap className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>100% Free to Get Started</span>
             </motion.div>
             
             <motion.h2 
               variants={fadeInUp}
-              className="text-4xl md:text-6xl font-bold text-white mb-6"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold text-white mb-4 sm:mb-6"
             >
               Ready to Find Your
               <span className="block">Perfect Colors?</span>
@@ -524,7 +525,7 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             
             <motion.p 
               variants={fadeInUp}
-              className="text-xl text-white/80 mb-10 max-w-2xl mx-auto"
+              className="text-base sm:text-lg md:text-xl text-white/80 mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto px-2 sm:px-0"
             >
               Join thousands of designers and developers who use Colorra to create 
               beautiful, accessible color palettes for their projects.
@@ -533,9 +534,9 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
             <motion.div variants={fadeInUp}>
               <Link href="/signup">
                 <motion.div whileHover={{ scale: 1.05, y: -3 }} whileTap={{ scale: 0.98 }} className="inline-block">
-                  <Button size="lg" className="bg-white text-violet-700 hover:bg-gray-100 px-12 py-7 text-xl font-bold shadow-2xl">
+                  <Button size="lg" className="bg-white text-violet-700 hover:bg-gray-100 px-8 sm:px-10 md:px-12 py-5 sm:py-6 md:py-7 text-base sm:text-lg md:text-xl font-bold shadow-2xl">
                     Create Your First Palette
-                    <ArrowRight className="ml-3 h-6 w-6" />
+                    <ArrowRight className="ml-2 sm:ml-3 h-5 w-5 sm:h-6 sm:w-6" />
                   </Button>
                 </motion.div>
               </Link>
@@ -545,30 +546,30 @@ export default function HomePage({ publicPalettes }: HomePageProps) {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-12 px-4 sm:px-6 lg:px-8">
+      <footer className="bg-gray-900 text-gray-400 py-8 sm:py-10 md:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex flex-col items-center justify-between gap-6 sm:gap-8 md:flex-row">
             <div className="flex items-center">
               <Image 
                 src="/images/colorra-logo.png" 
                 alt="Colorra Logo" 
-                width={120} 
-                height={40} 
-                className="brightness-0 invert opacity-90"
+                width={100} 
+                height={33} 
+                className="brightness-0 invert opacity-90 sm:w-[120px]"
               />
             </div>
             
-            <div className="flex items-center gap-8 text-sm">
+            <div className="flex items-center gap-4 sm:gap-6 md:gap-8 text-xs sm:text-sm">
               <Link href="/explore" className="hover:text-white transition-colors">Explore</Link>
               <Link href="/signin" className="hover:text-white transition-colors">Sign In</Link>
               <Link href="/signup" className="hover:text-white transition-colors">Get Started</Link>
             </div>
             
             <div className="text-center md:text-right">
-              <p className="text-sm">
+              <p className="text-xs sm:text-sm">
                 Developed with ❤️ by <a href="https://eawebcraft.vercel.app" target="_blank" rel="noopener noreferrer" className="text-white font-medium hover:text-violet-400 underline underline-offset-2 transition-colors">Emmanuel Ayeni</a>
               </p>
-              <p className="text-xs mt-1 text-gray-500">
+              <p className="text-[10px] sm:text-xs mt-1 text-gray-500">
                 © {new Date().getFullYear()} Colorra. All rights reserved.
               </p>
             </div>
